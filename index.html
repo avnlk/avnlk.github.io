@@ -1,109 +1,95 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lokesh Aravapalli | @avnlk</title>
-    <style>
-        :root {
-            --bg-color: #0d1117;
-            --text-main: #c9d1d9;
-            --accent-blue: #58a6ff;
-            --accent-green: #3fb950;
-            --box-bg: #161b22;
-            --box-border: #30363d;
-        }
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Courier New', Courier, monospace;
-            margin: 0 auto;
-            max-width: 850px;
-            padding: 40px 20px;
-            line-height: 1.6;
-        }
-        h1, h2, h3 { color: var(--accent-blue); font-weight: normal; }
-        h1 { border-bottom: 1px solid var(--box-border); padding-bottom: 10px; }
-        a { color: var(--accent-blue); text-decoration: none; }
-        a:hover { text-decoration: underline; color: var(--accent-green); }
-        
-        .terminal-box {
-            background-color: var(--box-bg);
-            border: 1px solid var(--box-border);
-            padding: 20px;
-            border-radius: 6px;
-            margin: 25px 0;
-            border-left: 3px solid var(--accent-green);
-        }
-        .tag {
-            background-color: var(--box-border);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.9em;
-            color: var(--text-main);
-            margin-right: 5px;
-        }
-        .cursor {
-            display: inline-block;
-            width: 10px;
-            height: 1.2em;
-            background-color: var(--accent-green);
-            vertical-align: bottom;
-            animation: blink 1s step-end infinite;
-        }
-        @keyframes blink { 50% { opacity: 0; } }
-        ul { list-style-type: none; padding-left: 0; }
-        li { margin-bottom: 15px; }
-        li::before { content: "> "; color: var(--accent-green); font-weight: bold; }
-    </style>
+    <title>avnlk</title><style>
+    :root {
+        --bg: #0d1117;
+        --text: #c9d1d9;
+        --accent: #58a6ff;
+        --green: #3fb950;
+    }
+
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Courier New', monospace;
+    }
+
+    .container {
+        text-align: center;
+        max-width: 600px;
+    }
+
+    h1 {
+        font-size: 2.2rem;
+        margin-bottom: 10px;
+        color: var(--accent);
+    }
+
+    p {
+        margin: 10px 0;
+        color: #8b949e;
+    }
+
+    .cursor {
+        display: inline-block;
+        width: 10px;
+        height: 1.2em;
+        background: var(--green);
+        animation: blink 1s infinite;
+        vertical-align: bottom;
+    }
+
+    @keyframes blink {
+        50% { opacity: 0; }
+    }
+
+    .links {
+        margin-top: 20px;
+    }
+
+    a {
+        color: var(--accent);
+        text-decoration: none;
+        margin: 0 10px;
+    }
+
+    a:hover {
+        color: var(--green);
+    }
+
+    .status {
+        margin-top: 20px;
+        font-size: 0.9rem;
+    }
+
+    .status span {
+        color: var(--green);
+    }
+</style>
+
 </head>
-<body>
+<body><div class="container">
+    <h1>Lokesh (@avnlk)<span class="cursor"></span></h1>
 
-    <h1>Lokesh Aravapalli (@avnlk)</h1>
-    <h2>High-Performance Systems & Hardware Engineer<span class="cursor"></span></h2>
-    
-    <p>Integrated M.Tech ECE @ IIIT Bangalore (2027) | Upcoming Summer Intern @ Samsung R&D Institute Bangalore (SRIB) 2026</p>
+    <p>Low-Latency Systems • FPGA • C++</p>
 
-    <div class="terminal-box">
-        <p><strong>[SYS_STATUS]:</strong> Engineering at the intersection of algorithmic rigor and physical silicon.</p>
-        <p><strong>[CORE_STACK]:</strong></p>
-        <p>
-            <span class="tag">C/C++</span>
-            <span class="tag">Low-Latency Architecture</span>
-            <span class="tag">Linux Kernel Profiling (perf, mpstat)</span>
-            <span class="tag">FPGA/HLS Co-Design</span>
-            <span class="tag">Competitive Programming</span>
-        </p>
-        <p><strong>[NETWORK]:</strong> 
-            <a href="https://github.com/avnlk" target="_blank">GitHub</a> | 
-            <a href="https://linkedin.com/in/avnlk" target="_blank">LinkedIn</a> | 
-            <a href="https://codeforces.com/profile/avnlk" target="_blank">Codeforces</a>
-        </p>
+    <p class="status">
+        [status] building something interesting... <span>coming soon</span>
+    </p>
+
+    <div class="links">
+        <a href="https://github.com/avnlk" target="_blank">github</a>
+        <a href="https://linkedin.com/in/avnlk" target="_blank">linkedin</a>
+        <a href="https://codeforces.com/profile/avnlk" target="_blank">codeforces</a>
     </div>
-
-    <h3>> Engineering Log // Systems & Silicon</h3>
-    <ul>
-        <li>
-            <strong>Defeating HLS Hallucinations: 0.12µs 5G-NR Interleaver</strong><br>
-            By forcing compile-time unrolling on a 128-bit parallel AXI bus. Reduced area and latency.
-        </li>
-        <li>
-            <strong>HPN-410 & DTS-512 Channel Interleavers</strong><br>
-            Designed custom dynamic triangle streaming engines for triangular interleaving targeting high throughput and strict latency limits.
-        </li>
-        <li>
-            <strong>Algorithmic Optimization & ICPC</strong><br>
-            Expert @codeforce. 
-        </li>
-        <li>
-            <strong>Publications & Edge Computing</strong><br>
-            Authored an APSCON 2026 paper on energy-efficient wireless tree-topology irrigation nodes. Built a 128-point FFT using Radix-2 DIT on a Basys3 FPGA.
-        </li>
-    </ul>
-
-    <div style="margin-top: 50px; font-size: 0.8em; color: #8b949e; text-align: center;">
-        <p>EOF. Hand-coded. Zero JavaScript overhead.</p>
-    </div>
+</div>
 
 </body>
 </html>
