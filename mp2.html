@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Triangular Interleaver | avnlk</title>
+
+<style>
+:root {
+    --bg: #0d1117;
+    --text: #c9d1d9;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --muted: #8b949e;
+}
+
+body {
+    margin: 0;
+    padding: 40px 20px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+    max-width: 800px;
+    margin-inline: auto;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--green);
+}
+
+h1 {
+    color: var(--accent);
+    margin-bottom: 10px;
+}
+
+.section {
+    margin-top: 30px;
+}
+
+details {
+    margin-top: 15px;
+    background: #161b22;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+summary {
+    cursor: pointer;
+    color: var(--accent);
+}
+
+</style>
+</head>
+
+<body>
+
+<a href="index.html">← back</a>
+
+<h1>Triangular Interleaver (5G-NR)</h1>
+
+<!-- ⚡ ZONE 1 -->
+<div class="section">
+<p>
+→ Achieved ~0.41µs latency (~25× faster than baseline)<br>
+→ Converted triangular mapping into BRAM-based permutation lookup<br>
+→ Parallel processing (16 bits/cycle) with pipelined execution
+</p>
+</div>
+
+<!-- 🧠 ZONE 2 -->
+<div class="section">
+<p><b>[problem]</b></p>
+<p>
+Triangular interleaver requires writing data row-wise into a triangular matrix
+and reading column-wise.
+</p>
+
+<p>
+This leads to:
+- irregular memory access<br>
+- nested loop structure<br>
+- high latency in naive implementations
+</p>
+</div>
+
+<div class="section">
+<p><b>[key insight]</b></p>
+<p>
+The triangular structure is static and deterministic.
+</p>
+
+<p>
+Instead of computing indices at runtime:
+→ precompute the permutation mapping<br>
+→ store it in BRAM<br>
+→ convert runtime logic into lookup
+</p>
+</div>
+
+<div class="section">
+<p><b>[design]</b></p>
+<p>
+- Precomputed permutation table stored in BRAM<br>
+- Loop unrolling: 16 elements per cycle<br>
+- Fully pipelined architecture<br>
+- AXI-based streaming interface
+</p>
+</div>
+
+<div class="section">
+<p><b>[results]</b></p>
+<p>
+Latency: ~0.41µs (for 512 bits)<br>
+Throughput: 16 elements per cycle<br>
+Improvement: ~25× over baseline implementation
+</p>
+</div>
+
+<!-- 🔬 ZONE 3 -->
+<details>
+<summary>🔬 Deep Dive: Why naive approach is slow</summary>
+<p>
+Naive implementation directly follows triangular mapping:
+- nested loops
+- index computation per element
+- sequential processing
+
+This results in O(N²)-like behavior and high latency.
+</p>
+</details>
+
+<details>
+<summary>⚙️ Deep Dive: Lookup-based optimization</summary>
+<p>
+By precomputing the mapping:
+
+out[i] = in[perm[i]]
+
+The problem becomes:
+- simple memory access
+- no runtime computation
+- fully parallelizable
+
+This shifts complexity from compute → memory.
+</p>
+</details>
+
+<details>
+<summary>📊 Trade-offs</summary>
+<p>
+Pros:
+- drastically reduced latency
+- simple datapath
+
+Cons:
+- requires BRAM for permutation storage
+- less flexible for dynamic sizes
+</p>
+</details>
+
+</body>
+</html>
