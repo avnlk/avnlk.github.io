@@ -8,9 +8,9 @@
         :root {
             --bg-color: #0d1117;
             --text-main: #c9d1d9;
-            --primary: #58a6ff;       /* Systems Blue */
-            --primary-hover: #79c0ff; /* Light Blue */
-            --accent: #e3b341;        /* Warning Amber */
+            --primary: #58a6ff;
+            --primary-hover: #79c0ff;
+            --accent: #e3b341;
             --box-bg: #161b22;
             --box-border: #30363d;
         }
@@ -38,15 +38,12 @@
         
         .section-title { color: var(--primary); font-weight: bold; margin-top: 40px; margin-bottom: 15px; }
         
-        /* Metric Highlight */
         .metric { color: var(--accent); font-weight: bold; }
         
-        /* Table Styling */
         table { width: 100%; border-collapse: collapse; background-color: var(--box-bg); border: 1px solid var(--box-border); font-size: 0.85rem; text-align: center; margin-top: 20px;}
         th { padding: 10px; border-bottom: 2px solid var(--box-border); color: var(--primary); font-weight: normal; }
         td { padding: 10px; border-bottom: 1px solid var(--box-border); }
         
-        /* Dropdown Styling */
         details {
             background-color: var(--box-bg);
             border: 1px solid var(--box-border);
@@ -59,17 +56,13 @@
             color: var(--primary);
             font-weight: bold;
             cursor: pointer;
-            list-style: none; /* Hide default arrow */
+            list-style: none;
             display: flex;
             align-items: center;
             transition: color 0.2s;
         }
         
-        summary:hover {
-            color: var(--accent);
-        }
-        
-        summary::-webkit-details-marker { display: none; } /* Hide for Safari */
+        summary:hover { color: var(--accent); }
         summary::before {
             content: "▶ ";
             font-size: 0.8em;
@@ -104,7 +97,7 @@
     </ul>
 
     <div class="section-title">[key insight]</div>
-    <p>The mathematical structure of a triangular matrix for a fixed block size is static and completely deterministic. Instead of computing $f(i)$ at runtime, we store pre-calculated $perm[i]$ and route directly via dual-port BRAM.</p>
+    <p>The mathematical structure of a triangular matrix for a fixed block size is static and completely deterministic. Instead of computing <code>f(i)</code> at runtime, we store pre-calculated <code>perm[i]</code> and route directly via dual-port BRAM.</p>
     <p><strong>The Fix:</strong> Precompute the entire physical permutation mapping at compile-time, store it in Block RAM (BRAM), and convert complex runtime logic into a pure O(1) memory lookup.</p>
 
     <div class="section-title">[design]</div>
@@ -162,7 +155,7 @@
         <summary>🔬 Deep Dive: Why the naive approach is slow</summary>
         <div class="details-content">
             <p>In a naive C++ implementation, calculating the exact read/write index for a triangular structure requires solving quadratic equations or running deeply nested <code>for</code> loops.</p>
-            <p>When High-Level Synthesis (HLS) compiles nested loops with dynamic variables, it cannot synthesize a straight wire. Instead, it builds a massive Finite State Machine (FSM). For every single bit of data, the FPGA has to stall, calculate the math using ALUs and DSP slices, update the state, and then move the data. This creates a severe pipeline bottleneck where the math calculation takes longer than the actual data movement.</p>
+            <p>When High-Level Synthesis (HLS) compiles nested loops with dynamic variables, it cannot synthesize a straight wire. Instead, it builds a massive Finite State Machine (FSM). For every single bit of data, the FPGA has to stall, calculate the math using ALUs and DSP slices, update the state, and then move the data.</p>
         </div>
     </details>
 
@@ -178,7 +171,7 @@
         <summary>📊 Trade-offs</summary>
         <div class="details-content">
             <p><strong>Silicon Area vs. Speed:</strong> This architecture intentionally trades logic area for pure execution speed. By precomputing the indices, we consume more BRAM tiles on the FPGA die. However, we simultaneously free up Look-Up Tables (LUTs) and DSP slices that would have been wasted on mathematical address generation.</p>
-            <p>In latency-critical environments like 5G baseband processing or streaming architectures with latency constraints, memory space is relatively cheap since the data is predominantly in-flight between/within the IPs, but nanoseconds are priceless. Thus, trading BRAM to save nanoseconds is mathematically optimal for the use case.</p>
+            <p>In latency-critical environments like 5G baseband processing or streaming architectures with latency constraints, memory space is relatively cheap since the data is predominantly in-flight between/within the IPs, but nanoseconds are priceless.</p>
         </div>
     </details>
 
