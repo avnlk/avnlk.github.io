@@ -8,9 +8,11 @@
         :root {
             --bg: #0d1117;
             --text: #c9d1d9;
-            --accent: #ffb000;       /* Amber */
-            --accent-hover: #ff6f00; /* Deep Orange */
+            --primary: #58a6ff;       /* Systems Blue */
+            --primary-hover: #79c0ff; /* Light Blue */
+            --accent: #e3b341;        /* Warning Amber */
             --muted: #8b949e;
+            --border: #30363d;
         }
 
         body {
@@ -33,7 +35,7 @@
         h1 {
             font-size: 2.2rem;
             margin-bottom: 5px;
-            color: var(--accent);
+            color: var(--primary);
         }
 
         .subtitle {
@@ -51,7 +53,7 @@
             display: inline-block;
             width: 10px;
             height: 1.2em;
-            background: var(--accent);
+            background: var(--primary);
             animation: blink 1s infinite;
             vertical-align: bottom;
         }
@@ -62,16 +64,19 @@
 
         .links {
             margin-top: 20px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border);
         }
 
         .links a {
-            color: var(--accent);
+            color: var(--primary);
             text-decoration: none;
             margin: 0 12px;
+            transition: color 0.2s;
         }
 
         .links a:hover {
-            color: var(--accent-hover);
+            color: var(--accent);
         }
 
         .status {
@@ -84,20 +89,40 @@
             font-weight: bold;
         }
 
+        .projects {
+            margin-top: 30px;
+            text-align: left; /* Shift projects to left-align for log-style reading */
+            background: #161b22;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .projects p { margin: 0; }
+
+        .project-title {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .project-title:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        /* GPT's specific Latency Metric Highlight */
+        .metric {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
         .footer {
             margin-top: 25px;
             font-size: 0.75rem;
             color: #6e7681;
-        }
-        
-        .projects a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-        
-        .projects a:hover {
-            color: var(--accent-hover);
-            text-decoration: underline;
         }
     </style>
 </head>
@@ -124,20 +149,20 @@
     </div>
 
     <div class="projects">
-        <p style="margin-top: 30px; color: var(--muted);">[projects]</p>
+        <p style="color: var(--primary); margin-bottom: 15px;">[projects]</p>
 
         <p>
-            <a href="mp2.html">
-                triangular interleaver →
-            </a><br>
-            <span style="font-size: 0.85rem; color: var(--muted);">
-                0.41µs latency (~25× faster) using BRAM-based permutation
+            <a href="mp2.html" class="project-title">
+                triangular_interleaver &rarr;
+            </a>
+            <span style="font-size: 0.85rem; color: var(--text);">
+                ⚡ <span class="metric">0.41µs latency</span> (~25× faster) via BRAM-based permutation lookup.
             </span>
         </p>
     </div>
 
     <div class="footer">
-        last updated: april 2026
+        return 0; // Architecture by @avnlk, HTML by AI.
     </div>
 
 </div>
