@@ -8,8 +8,9 @@
         :root {
             --bg-color: #0d1117;
             --text-main: #c9d1d9;
-            --accent: #ffb000;       /* Amber */
-            --accent-hover: #ff6f00; /* Deep Orange */
+            --primary: #58a6ff;       /* Systems Blue */
+            --primary-hover: #79c0ff; /* Light Blue */
+            --accent: #e3b341;        /* Warning Amber */
             --box-bg: #161b22;
             --box-border: #30363d;
         }
@@ -24,18 +25,21 @@
             line-height: 1.6;
         }
         
-        h1, h2, h3 { color: var(--accent); font-weight: normal; margin-bottom: 10px;}
+        h1, h2, h3 { color: var(--primary); font-weight: normal; margin-bottom: 10px;}
         h1 { font-size: 2.2em; border-bottom: 1px solid var(--box-border); padding-bottom: 15px; margin-top: 10px;}
         
-        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
-        a:hover { text-decoration: underline; color: var(--accent-hover); }
+        a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
+        a:hover { text-decoration: underline; color: var(--accent); }
         .back-link { font-size: 1.1em; }
         
         ul.tldr { list-style-type: none; padding-left: 0; margin-bottom: 40px; }
         ul.tldr li { margin-bottom: 8px; }
         ul.tldr li::before { content: "→ "; color: var(--text-main); }
         
-        .section-title { color: var(--text-main); font-weight: bold; margin-top: 40px; margin-bottom: 15px; }
+        .section-title { color: var(--primary); font-weight: bold; margin-top: 40px; margin-bottom: 15px; }
+        
+        /* Metric Highlight */
+        .metric { color: var(--accent); font-weight: bold; }
         
         /* Dropdown Styling */
         details {
@@ -47,7 +51,7 @@
         }
         
         summary {
-            color: var(--accent);
+            color: var(--primary);
             font-weight: bold;
             cursor: pointer;
             list-style: none; /* Hide default arrow */
@@ -57,7 +61,7 @@
         }
         
         summary:hover {
-            color: var(--accent-hover);
+            color: var(--accent);
         }
         
         summary::-webkit-details-marker { display: none; } /* Hide for Safari */
@@ -81,7 +85,7 @@
     <h1>Triangular Interleaver (5G-NR)</h1>
     
     <ul class="tldr">
-        <li>Achieved <strong>~0.41µs latency</strong> (~25× faster than baseline)</li>
+        <li>Achieved <span class="metric">~0.41µs latency</span> (~25× faster than baseline)</li>
         <li>Converted triangular mapping into BRAM-based permutation lookup</li>
         <li>Parallel processing (16 bits/cycle) with pipelined execution</li>
     </ul>
@@ -107,9 +111,9 @@
 
     <div class="section-title">[results]</div>
     <p>
-        <strong>Latency:</strong> ~0.41µs (for 512 bits)<br>
-        <strong>Throughput:</strong> 16 elements per cycle<br>
-        <strong>Improvement:</strong> ~25× over standard algorithmic implementation
+        <strong>Latency:</strong> <span class="metric">~0.41µs</span> (for 512 bits)<br>
+        <strong>Throughput:</strong> <span class="metric">16 elements per cycle</span><br>
+        <strong>Improvement:</strong> <span class="metric">~25×</span> over standard algorithmic implementation
     </p>
 
     <div style="margin-top: 50px;"></div>
