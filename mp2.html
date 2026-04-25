@@ -8,11 +8,12 @@
         :root {
             --bg-color: #0d1117;
             --text-main: #c9d1d9;
-            --primary: #58a6ff;
-            --primary-hover: #79c0ff;
-            --accent: #e3b341;
+            --primary: #58a6ff;       /* Systems Blue */
+            --primary-hover: #79c0ff; /* Light Blue */
+            --accent: #e3b341;        /* Warning Amber */
             --box-bg: #161b22;
             --box-border: #30363d;
+            --muted: #8b949e;
         }
         
         body {
@@ -20,73 +21,109 @@
             color: var(--text-main);
             font-family: 'Courier New', Courier, monospace;
             margin: 0 auto;
-            max-width: 800px;
+            max-width: 850px;
             padding: 40px 20px;
             line-height: 1.6;
         }
         
-        h1, h2, h3 { color: var(--primary); font-weight: normal; margin-bottom: 10px;}
-        h1 { font-size: 2.2em; border-bottom: 1px solid var(--box-border); padding-bottom: 15px; margin-top: 10px;}
+        header { border-bottom: 1px solid var(--box-border); padding-bottom: 20px; margin-bottom: 30px; }
+        h1 { font-size: 2.2em; color: var(--primary); margin: 10px 0; letter-spacing: .02em; }
         
-        a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
-        a:hover { text-decoration: underline; color: var(--accent); }
-        .back-link { font-size: 1.1em; }
-        
-        ul.tldr { list-style-type: none; padding-left: 0; margin-bottom: 40px; }
-        ul.tldr li { margin-bottom: 8px; }
-        ul.tldr li::before { content: "→ "; color: var(--text-main); }
-        
-        .section-title { color: var(--primary); font-weight: bold; margin-top: 40px; margin-bottom: 15px; }
-        
+        .nav-links { display: flex; justify-content: space-between; font-size: 0.9rem; }
+        .nav-links a { color: var(--primary); text-decoration: none; }
+        .nav-links a:hover { color: var(--accent); }
+
+        .spec-tags { display: flex; gap: 10px; margin: 15px 0; font-size: 0.7rem; }
+        .tag { border: 1px solid var(--box-border); padding: 2px 8px; border-radius: 4px; color: var(--muted); }
+        .tag-highlight { border-color: var(--accent); color: var(--accent); }
+
+        .tldr { list-style-type: none; padding-left: 0; margin-bottom: 30px; border-left: 2px solid var(--box-border); padding-left: 20px; }
+        .tldr li { margin-bottom: 10px; }
         .metric { color: var(--accent); font-weight: bold; }
         
-        table { width: 100%; border-collapse: collapse; background-color: var(--box-bg); border: 1px solid var(--box-border); font-size: 0.85rem; text-align: center; margin-top: 20px;}
-        th { padding: 10px; border-bottom: 2px solid var(--box-border); color: var(--primary); font-weight: normal; }
-        td { padding: 10px; border-bottom: 1px solid var(--box-border); }
-        
-        details {
-            background-color: var(--box-bg);
-            border: 1px solid var(--box-border);
+        .section-title { color: var(--primary); font-weight: bold; margin-top: 40px; margin-bottom: 15px; text-transform: lowercase; font-size: 1.1rem; }
+
+        /* ASCII Art Styling */
+        .ascii-art {
+            background: var(--box-bg);
+            color: var(--accent);
+            padding: 20px;
             border-radius: 6px;
-            margin-bottom: 15px;
-            padding: 15px;
+            font-size: 0.75rem;
+            line-height: 1.2;
+            overflow-x: auto;
+            border: 1px solid var(--box-border);
+            margin: 20px 0;
+            white-space: pre;
         }
-        
-        summary {
-            color: var(--primary);
-            font-weight: bold;
-            cursor: pointer;
-            list-style: none;
-            display: flex;
-            align-items: center;
-            transition: color 0.2s;
-        }
-        
+
+        table { width: 100%; border-collapse: collapse; background: var(--box-bg); border: 1px solid var(--box-border); font-size: 0.85rem; margin: 20px 0; }
+        th, td { padding: 12px; border: 1px solid var(--box-border); text-align: center; }
+        th { color: var(--primary); font-weight: normal; }
+
+        details { background: var(--box-bg); border: 1px solid var(--box-border); border-radius: 6px; margin-bottom: 15px; padding: 15px; }
+        summary { cursor: pointer; color: var(--primary); font-weight: bold; outline: none; }
         summary:hover { color: var(--accent); }
-        summary::before {
-            content: "▶ ";
-            font-size: 0.8em;
-            margin-right: 10px;
-            transition: transform 0.2s ease-in-out;
-        }
-        
-        details[open] summary::before { transform: rotate(90deg); }
-        .details-content { margin-top: 15px; padding-left: 20px; border-left: 2px solid var(--box-border); }
-        
+        .details-content { margin-top: 15px; padding-left: 15px; border-left: 1px solid var(--box-border); font-size: 0.9rem; }
+
         code { background-color: var(--box-border); padding: 2px 5px; border-radius: 4px; font-size: 0.9em; }
+        footer { margin-top: 60px; text-align: center; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--box-border); padding-top: 20px; }
+
+        @media print {
+            body { background: white !important; color: black !important; max-width: 100%; }
+            .nav-links, summary::before { display: none !important; }
+            details, .ascii-art, table { border: 1px solid black !important; background: white !important; color: black !important;}
+            .metric, .tag-highlight, h1, .section-title { color: black !important; font-weight: bold !important;}
+            details[open] .details-content { display: block !important; }
+        }
     </style>
 </head>
 <body>
 
-    <a href="index.html" class="back-link">&larr; back</a>
+    <header>
+        <div class="nav-links">
+            <a href="index.html">&larr; back</a>
+            <a href="javascript:window.print()" style="color: var(--muted);">[export_pdf]</a>
+        </div>
+        
+        <h1>Triangular Interleaver (5G-NR)</h1>
+        
+        <div class="spec-tags">
+            <span class="tag tag-highlight">FPGA_ACCELERATED</span>
+            <span class="tag">5G_NR_L1</span>
+            <span class="tag">STABLE_BUILD_V2.1</span>
+        </div>
+    </header>
 
-    <h1>Triangular Interleaver (5G-NR)</h1>
-    
     <ul class="tldr">
-        <li>Achieved <span class="metric">0.41µs latency</span> | 13.6× faster than baseline</li>
-        <li>Converted triangular mapping into BRAM-based permutation lookup</li>
-        <li>Parallel processing (16 bits/cycle) with pipelined execution</li>
+        <li>&rarr; Achieved <span class="metric">0.41µs latency</span> | 13.6× faster than baseline</li>
+        <li>&rarr; Mapped triangular indices to dual-port BRAM lookup tables</li>
+        <li>&rarr; Parallel processing (16 bits/cycle) with pipelined execution</li>
     </ul>
+
+    <div class="section-title">[visual_logic]</div>
+    
+    <p style="font-size: 0.85rem; color: var(--muted);">1. Software Concept: The Triangular Matrix (Row-In, Col-Out)</p>
+    <div class="ascii-art">
+  DATA IN (ROW) -->  [ D0  D1  D2  D3 ]
+                     [ D4  D5  D6     ]
+                     [ D7  D8         ]
+                     [ D9             ]
+                             |
+                             v
+  DATA OUT (COL) <-- [ D0  D4  D7  D9  D1  D5  D8  D2  D6  D3 ]
+    </div>
+
+    <p style="font-size: 0.85rem; color: var(--muted);">2. Hardware Architecture: O(1) Memory Lookup Path</p>
+    <div class="ascii-art">
+ [AXI-STREAM IN] ----> [ INPUT BUFFER ] ----> [ PERMUTATION LOGIC ] ----> [AXI-STREAM OUT]
+                             |                        ^
+                             |       (READ ADDR)      |
+                             +------------------------+
+                                         |
+                                 [ DUAL-PORT BRAM ]
+                                 (LUT: f(i) -> addr)
+    </div>
 
     <div class="section-title">[problem]</div>
     <p>The standard triangular interleaver algorithm requires writing data row-wise into a triangular matrix and reading it out column-wise. In physical hardware, this leads to:</p>
@@ -96,88 +133,81 @@
         <li>Massive state-machine overhead resulting in multi-microsecond latency.</li>
     </ul>
 
-    <div class="section-title">[key insight]</div>
-    <p>The mathematical structure of a triangular matrix for a fixed block size is static and completely deterministic. Instead of computing <code>f(i)</code> at runtime, we store pre-calculated <code>perm[i]</code> and route directly via dual-port BRAM.</p>
-    <p><strong>The Fix:</strong> Precompute the entire physical permutation mapping at compile-time, store it in Block RAM (BRAM), and convert complex runtime logic into a pure O(1) memory lookup.</p>
+    <div class="section-title">[key_insight]</div>
+    <p>The mathematical structure of a triangular matrix for a fixed block size is static and completely deterministic. Instead of computing <code>f(i)</code> at runtime, we store pre-calculated <code>perm[i]</code> and route directly via dual-port BRAM. This converts an O(N) math problem into a wire-speed O(1) lookup.</p>
 
     <div class="section-title">[design]</div>
     <ul>
-        <li>Precomputed permutation table synthesized directly into FPGA BRAM.</li>
-        <li>Aggressive loop unrolling: processing 16 elements per clock cycle instead of 1.</li>
-        <li>Fully pipelined AXI4-Stream architecture to guarantee zero-stall throughput.</li>
+        <li><strong>Memory Mapping:</strong> Precomputed permutation table synthesized directly into FPGA BRAM.</li>
+        <li><strong>Loop Unrolling:</strong> Aggressive unrolling to process 16 elements per clock cycle instead of 1.</li>
+        <li><strong>Pipeline:</strong> Fully pipelined AXI4-Stream architecture to guarantee zero-stall throughput.</li>
     </ul>
 
     <div class="section-title">[results]</div>
-    <p>
-        The table-based architecture achieved a <span class="metric">13.6× latency reduction</span> compared to the optimized algorithmic baseline, while maintaining a minimal resource footprint well below the 8% design constraint.
-    </p>
-
-    <div style="overflow-x: auto;">
-        <table>
-            <thead>
-                <tr>
-                    <th style="text-align: left;">Solution</th>
-                    <th>BRAM</th>
-                    <th>LUTs</th>
-                    <th>FFs</th>
-                    <th>Total Util %</th>
-                    <th>Latency</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="text-align: left;">Normal Optimized</td>
-                    <td>5</td>
-                    <td>1240</td>
-                    <td>331</td>
-                    <td>1.607%</td>
-                    <td>5.57µs</td>
-                </tr>
-                <tr style="color: var(--accent); font-weight: bold;">
-                    <td style="text-align: left;">Precomputed Table</td>
-                    <td>8</td>
-                    <td>1815</td>
-                    <td>715</td>
-                    <td>2.588%</td>
-                    <td class="metric">0.41µs</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <p>The table-based architecture achieved a <span class="metric">13.6× latency reduction</span> compared to the optimized algorithmic baseline, while maintaining a minimal resource footprint well below the 8% design constraint.</p>
     
-    <p style="margin-top: 20px; font-size: 0.9rem;">
-        &rarr; <strong>Target Constraints:</strong> &lt;11.00µs latency | &lt;8.00% total utilization.
-    </p>
+    <table>
+        <thead>
+            <tr>
+                <th style="text-align: left;">Solution</th>
+                <th>BRAM</th>
+                <th>LUTs</th>
+                <th>FFs</th>
+                <th>Total Util</th>
+                <th>Latency</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="text-align: left;">Normal Optimized</td>
+                <td>5</td>
+                <td>1240</td>
+                <td>331</td>
+                <td>1.607%</td>
+                <td>5.57µs</td>
+            </tr>
+            <tr style="border: 2px solid var(--accent);">
+                <td style="text-align: left; font-weight: bold;">Precomputed Table</td>
+                <td>8</td>
+                <td>1815</td>
+                <td>715</td>
+                <td>2.588%</td>
+                <td class="metric">0.41µs</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <p style="font-size: 0.85rem; color: var(--muted);">&rarr; Target Constraints: &lt;11.00µs latency | &lt;8.00% total utilization.</p>
 
-    <div style="margin-top: 50px;"></div>
+    <div style="margin-top: 40px;">
+        <details>
+            <summary>🔬 Deep Dive: Why the naive approach is slow</summary>
+            <div class="details-content">
+                <p>In a naive C++ implementation, calculating the exact read/write index for a triangular structure requires solving quadratic equations or running deeply nested <code>for</code> loops.</p>
+                <p>When High-Level Synthesis (HLS) compiles nested loops with dynamic variables, it cannot synthesize a straight wire. Instead, it builds a massive Finite State Machine (FSM). For every single bit of data, the FPGA has to stall, calculate the math using ALUs and DSP slices, and update the state. This creates a severe pipeline bottleneck where the math calculation takes longer than the actual data movement.</p>
+            </div>
+        </details>
 
-    <details>
-        <summary>🔬 Deep Dive: Why the naive approach is slow</summary>
-        <div class="details-content">
-            <p>In a naive C++ implementation, calculating the exact read/write index for a triangular structure requires solving quadratic equations or running deeply nested <code>for</code> loops.</p>
-            <p>When High-Level Synthesis (HLS) compiles nested loops with dynamic variables, it cannot synthesize a straight wire. Instead, it builds a massive Finite State Machine (FSM). For every single bit of data, the FPGA has to stall, calculate the math using ALUs and DSP slices, update the state, and then move the data.</p>
-        </div>
-    </details>
+        <details>
+            <summary>⚙️ Deep Dive: Lookup-based optimization</summary>
+            <div class="details-content">
+                <p>By shifting from a "Compute" paradigm to a "Memory" paradigm, we exploit the FPGA's physical architecture. The compile-time array is mapped directly to dual-port Block RAM (BRAM).</p>
+                <p>When the payload enters the AXI-Stream bus, the hardware no longer asks, <em>"What is the mathematical root of this index?"</em> Instead, it asks the BRAM, <em>"Where does bit 42 go?"</em> The BRAM responds in exactly 1 clock cycle. By unrolling the loop by a factor of 16, we query the BRAM 16 times concurrently, saturating the bus and achieving wire-speed latency.</p>
+            </div>
+        </details>
 
-    <details>
-        <summary>⚙️ Deep Dive: Lookup-based optimization</summary>
-        <div class="details-content">
-            <p>By shifting from a "Compute" paradigm to a "Memory" paradigm, we exploit the FPGA's physical architecture. The compile-time array is mapped directly to dual-port Block RAM (BRAM).</p>
-            <p>When the 512-bit payload enters the AXI-Stream bus, the hardware no longer asks, <em>"What is the mathematical root of this index?"</em> Instead, it asks the BRAM, <em>"Where does bit 42 go?"</em> The BRAM responds in exactly 1 clock cycle. By unrolling the loop by a factor of 16, we query the BRAM 16 times concurrently, saturating the bus and achieving wire-speed latency.</p>
-        </div>
-    </details>
-
-    <details>
-        <summary>📊 Trade-offs</summary>
-        <div class="details-content">
-            <p><strong>Silicon Area vs. Speed:</strong> This architecture intentionally trades logic area for pure execution speed. By precomputing the indices, we consume more BRAM tiles on the FPGA die. However, we simultaneously free up Look-Up Tables (LUTs) and DSP slices that would have been wasted on mathematical address generation.</p>
-            <p>In latency-critical environments like 5G baseband processing or streaming architectures with latency constraints, memory space is relatively cheap since the data is predominantly in-flight between/within the IPs, but nanoseconds are priceless.</p>
-        </div>
-    </details>
-
-    <div style="margin-top: 50px; font-size: 0.8em; color: #8b949e; text-align: center;">
-        <p>return 0; // Architecture by <a href="index.html" style="color: inherit; text-decoration: none;">@avnlk</a>, HTML by AI.</p>
+        <details>
+            <summary>📊 Trade-offs: Silicon Area vs. Speed</summary>
+            <div class="details-content">
+                <p>This architecture intentionally trades logic area for pure execution speed. By precomputing the indices, we consume more BRAM tiles on the FPGA die. However, we simultaneously free up Look-Up Tables (LUTs) and DSP slices that would have been wasted on mathematical address generation.</p>
+                <p>In latency-critical environments like 5G baseband processing, memory space is relatively cheap since the data is predominantly in-flight, but nanoseconds are priceless. Thus, trading BRAM to save nanoseconds is mathematically optimal for the use case.</p>
+            </div>
+        </details>
     </div>
+
+    <footer>
+        return 0; // Architecture by <a href="index.html" style="color: inherit; text-decoration: none;">@avnlk</a>, HTML by AI.
+    </footer>
 
 </body>
 </html>
