@@ -8,11 +8,12 @@
         :root {
             --bg-color: #0d1117;
             --text-main: #c9d1d9;
-            --accent-blue: #ffd000;
-            --accent-green: #00ff00;
+            --accent: #ffb000;       /* Amber */
+            --accent-hover: #ff6f00; /* Deep Orange */
             --box-bg: #161b22;
             --box-border: #30363d;
         }
+        
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
@@ -22,10 +23,12 @@
             padding: 40px 20px;
             line-height: 1.6;
         }
-        h1, h2, h3 { color: var(--accent-blue); font-weight: normal; margin-bottom: 10px;}
+        
+        h1, h2, h3 { color: var(--accent); font-weight: normal; margin-bottom: 10px;}
         h1 { font-size: 2.2em; border-bottom: 1px solid var(--box-border); padding-bottom: 15px; margin-top: 10px;}
-        a { color: var(--accent-blue); text-decoration: none; }
-        a:hover { text-decoration: underline; color: var(--accent-green); }
+        
+        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+        a:hover { text-decoration: underline; color: var(--accent-hover); }
         .back-link { font-size: 1.1em; }
         
         ul.tldr { list-style-type: none; padding-left: 0; margin-bottom: 40px; }
@@ -42,14 +45,21 @@
             margin-bottom: 15px;
             padding: 15px;
         }
+        
         summary {
-            color: var(--accent-blue);
+            color: var(--accent);
             font-weight: bold;
             cursor: pointer;
             list-style: none; /* Hide default arrow */
             display: flex;
             align-items: center;
+            transition: color 0.2s;
         }
+        
+        summary:hover {
+            color: var(--accent-hover);
+        }
+        
         summary::-webkit-details-marker { display: none; } /* Hide for Safari */
         summary::before {
             content: "▶ ";
@@ -57,6 +67,7 @@
             margin-right: 10px;
             transition: transform 0.2s ease-in-out;
         }
+        
         details[open] summary::before { transform: rotate(90deg); }
         .details-content { margin-top: 15px; padding-left: 20px; border-left: 2px solid var(--box-border); }
         
@@ -127,10 +138,9 @@
         </div>
     </details>
 
-        <div style="margin-top: 50px; font-size: 0.8em; color: #8b949e; text-align: center;">
+    <div style="margin-top: 50px; font-size: 0.8em; color: #8b949e; text-align: center;">
         <p>return 0; // Architecture by @avnlk, HTML by AI.</p>
     </div>
-
 
 </body>
 </html>
