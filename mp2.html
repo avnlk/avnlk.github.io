@@ -123,7 +123,7 @@
         <summary>📊 Trade-offs</summary>
         <div class="details-content">
             <p><strong>Silicon Area vs. Speed:</strong> This architecture intentionally trades logic area for pure execution speed. By precomputing the indices, we consume more BRAM tiles on the FPGA die. However, we simultaneously free up Look-Up Tables (LUTs) and DSP slices that would have been wasted on mathematical address generation.</p>
-            <p>In latency-critical environments like 5G baseband processing or High-Frequency Trading (HFT), memory space is relatively cheap, but nanoseconds are priceless. This trade-off is mathematically optimal for the use case.</p>
+            <p>In latency-critical environments like 5G baseband processing or streaming architectures with latency constraints, memory space is relatively cheap since the data is predominantly in-flight between/within the IPs, but nanoseconds are priceless. Thus, trading BRAM to save nanoseconds is mathematically optimal for the use case.</p>
         </div>
     </details>
 
