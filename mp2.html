@@ -1,167 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Triangular Interleaver | avnlk</title>
-
-<style>
-:root {
-    --bg: #0d1117;
-    --text: #c9d1d9;
-    --accent: #58a6ff;
-    --green: #3fb950;
-    --muted: #8b949e;
-}
-
-body {
-    margin: 0;
-    padding: 40px 20px;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Courier New', monospace;
-    max-width: 800px;
-    margin-inline: auto;
-}
-
-a {
-    color: var(--accent);
-    text-decoration: none;
-}
-
-a:hover {
-    color: var(--green);
-}
-
-h1 {
-    color: var(--accent);
-    margin-bottom: 10px;
-}
-
-.section {
-    margin-top: 30px;
-}
-
-details {
-    margin-top: 15px;
-    background: #161b22;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-summary {
-    cursor: pointer;
-    color: var(--accent);
-}
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triangular Interleaver | @avnlk</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-main: #c9d1d9;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --box-bg: #161b22;
+            --box-border: #30363d;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 { color: var(--accent-blue); font-weight: normal; margin-bottom: 10px;}
+        h1 { font-size: 2.2em; border-bottom: 1px solid var(--box-border); padding-bottom: 15px; margin-top: 10px;}
+        a { color: var(--accent-blue); text-decoration: none; }
+        a:hover { text-decoration: underline; color: var(--accent-green); }
+        .back-link { font-size: 1.1em; }
+        
+        ul.tldr { list-style-type: none; padding-left: 0; margin-bottom: 40px; }
+        ul.tldr li { margin-bottom: 8px; }
+        ul.tldr li::before { content: "→ "; color: var(--text-main); }
+        
+        .section-title { color: var(--text-main); font-weight: bold; margin-top: 40px; margin-bottom: 15px; }
+        
+        /* Dropdown Styling */
+        details {
+            background-color: var(--box-bg);
+            border: 1px solid var(--box-border);
+            border-radius: 6px;
+            margin-bottom: 15px;
+            padding: 15px;
+        }
+        summary {
+            color: var(--accent-blue);
+            font-weight: bold;
+            cursor: pointer;
+            list-style: none; /* Hide default arrow */
+            display: flex;
+            align-items: center;
+        }
+        summary::-webkit-details-marker { display: none; } /* Hide for Safari */
+        summary::before {
+            content: "▶ ";
+            font-size: 0.8em;
+            margin-right: 10px;
+            transition: transform 0.2s ease-in-out;
+        }
+        details[open] summary::before { transform: rotate(90deg); }
+        .details-content { margin-top: 15px; padding-left: 20px; border-left: 2px solid var(--box-border); }
+        
+        code { background-color: var(--box-border); padding: 2px 5px; border-radius: 4px; font-size: 0.9em; }
+    </style>
 </head>
-
 <body>
 
-<a href="index.html">← back</a>
+    <a href="index.html" class="back-link">&larr; back</a>
 
-<h1>Triangular Interleaver (5G-NR)</h1>
+    <h1>Triangular Interleaver (5G-NR)</h1>
+    
+    <ul class="tldr">
+        <li>Achieved <strong>~0.41µs latency</strong> (~25× faster than baseline)</li>
+        <li>Converted triangular mapping into BRAM-based permutation lookup</li>
+        <li>Parallel processing (16 bits/cycle) with pipelined execution</li>
+    </ul>
 
-<!-- ⚡ ZONE 1 -->
-<div class="section">
-<p>
-→ Achieved ~0.41µs latency (~25× faster than baseline)<br>
-→ Converted triangular mapping into BRAM-based permutation lookup<br>
-→ Parallel processing (16 bits/cycle) with pipelined execution
-</p>
-</div>
+    <div class="section-title">[problem]</div>
+    <p>The standard triangular interleaver algorithm requires writing data row-wise into a triangular matrix and reading it out column-wise. In software, this is trivial. In physical hardware, this leads to:</p>
+    <ul>
+        <li>Irregular memory access patterns that break cache locality.</li>
+        <li>Complex nested loop structures requiring heavy mathematical division and modulo operations.</li>
+        <li>Massive state-machine overhead resulting in multi-microsecond latency.</li>
+    </ul>
 
-<!-- 🧠 ZONE 2 -->
-<div class="section">
-<p><b>[problem]</b></p>
-<p>
-Triangular interleaver requires writing data row-wise into a triangular matrix
-and reading column-wise.
-</p>
+    <div class="section-title">[key insight]</div>
+    <p>The mathematical structure of a triangular matrix for a fixed block size is static and completely deterministic. Instead of forcing the FPGA to compute complex indices at runtime (wasting DSP slices and clock cycles), the math can be bypassed entirely.</p>
+    <p><strong>The Fix:</strong> Precompute the entire physical permutation mapping at compile-time, store it in Block RAM (BRAM), and convert complex runtime logic into a pure O(1) memory lookup.</p>
 
-<p>
-This leads to:
-- irregular memory access<br>
-- nested loop structure<br>
-- high latency in naive implementations
-</p>
-</div>
+    <div class="section-title">[design]</div>
+    <ul>
+        <li>Precomputed permutation table synthesized directly into FPGA BRAM.</li>
+        <li>Aggressive loop unrolling: processing 16 elements per clock cycle instead of 1.</li>
+        <li>Fully pipelined AXI4-Stream architecture to guarantee zero-stall throughput.</li>
+    </ul>
 
-<div class="section">
-<p><b>[key insight]</b></p>
-<p>
-The triangular structure is static and deterministic.
-</p>
+    <div class="section-title">[results]</div>
+    <p>
+        <strong>Latency:</strong> ~0.41µs (for 512 bits)<br>
+        <strong>Throughput:</strong> 16 elements per cycle<br>
+        <strong>Improvement:</strong> ~25× over standard algorithmic implementation
+    </p>
 
-<p>
-Instead of computing indices at runtime:
-→ precompute the permutation mapping<br>
-→ store it in BRAM<br>
-→ convert runtime logic into lookup
-</p>
-</div>
+    <div style="margin-top: 50px;"></div>
 
-<div class="section">
-<p><b>[design]</b></p>
-<p>
-- Precomputed permutation table stored in BRAM<br>
-- Loop unrolling: 16 elements per cycle<br>
-- Fully pipelined architecture<br>
-- AXI-based streaming interface
-</p>
-</div>
+    <details>
+        <summary>🔬 Deep Dive: Why the naive approach is slow</summary>
+        <div class="details-content">
+            <p>In a naive C++ implementation, calculating the exact read/write index for a triangular structure requires solving quadratic equations or running deeply nested <code>for</code> loops.</p>
+            <p>When High-Level Synthesis (HLS) compiles nested loops with dynamic variables, it cannot synthesize a straight wire. Instead, it builds a massive Finite State Machine (FSM). For every single bit of data, the FPGA has to stall, calculate the math using ALUs and DSP slices, update the state, and then move the data. This creates a severe pipeline bottleneck where the math calculation takes longer than the actual data movement.</p>
+        </div>
+    </details>
 
-<div class="section">
-<p><b>[results]</b></p>
-<p>
-Latency: ~0.41µs (for 512 bits)<br>
-Throughput: 16 elements per cycle<br>
-Improvement: ~25× over baseline implementation
-</p>
-</div>
+    <details>
+        <summary>⚙️ Deep Dive: Lookup-based optimization</summary>
+        <div class="details-content">
+            <p>By shifting from a "Compute" paradigm to a "Memory" paradigm, we exploit the FPGA's physical architecture. The compile-time array is mapped directly to dual-port Block RAM (BRAM).</p>
+            <p>When the 512-bit payload enters the AXI-Stream bus, the hardware no longer asks, <em>"What is the mathematical root of this index?"</em> Instead, it asks the BRAM, <em>"Where does bit 42 go?"</em> The BRAM responds in exactly 1 clock cycle. By unrolling the loop by a factor of 16, we query the BRAM 16 times concurrently, saturating the bus and achieving wire-speed latency.</p>
+        </div>
+    </details>
 
-<!-- 🔬 ZONE 3 -->
-<details>
-<summary>🔬 Deep Dive: Why naive approach is slow</summary>
-<p>
-Naive implementation directly follows triangular mapping:
-- nested loops
-- index computation per element
-- sequential processing
+    <details>
+        <summary>📊 Trade-offs</summary>
+        <div class="details-content">
+            <p><strong>Silicon Area vs. Speed:</strong> This architecture intentionally trades logic area for pure execution speed. By precomputing the indices, we consume more BRAM tiles on the FPGA die. However, we simultaneously free up Look-Up Tables (LUTs) and DSP slices that would have been wasted on mathematical address generation.</p>
+            <p>In latency-critical environments like 5G baseband processing or High-Frequency Trading (HFT), memory space is relatively cheap, but nanoseconds are priceless. This trade-off is mathematically optimal for the use case.</p>
+        </div>
+    </details>
 
-This results in O(N²)-like behavior and high latency.
-</p>
-</details>
-
-<details>
-<summary>⚙️ Deep Dive: Lookup-based optimization</summary>
-<p>
-By precomputing the mapping:
-
-out[i] = in[perm[i]]
-
-The problem becomes:
-- simple memory access
-- no runtime computation
-- fully parallelizable
-
-This shifts complexity from compute → memory.
-</p>
-</details>
-
-<details>
-<summary>📊 Trade-offs</summary>
-<p>
-Pros:
-- drastically reduced latency
-- simple datapath
-
-Cons:
-- requires BRAM for permutation storage
-- less flexible for dynamic sizes
-</p>
-</details>
+    <div style="margin-top: 50px; font-size: 0.8em; color: #8b949e; text-align: center;">
+        <p>EOF. Hand-coded. Zero JavaScript overhead.</p>
+    </div>
 
 </body>
 </html>
