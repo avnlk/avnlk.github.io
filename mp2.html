@@ -8,9 +8,8 @@
         :root {
             --bg-color: #0d1117;
             --text-main: #c9d1d9;
-            --primary: #58a6ff;       /* Systems Blue */
-            --primary-hover: #79c0ff; /* Light Blue */
-            --accent: #e3b341;        /* Warning Amber */
+            --primary: #58a6ff;
+            --accent: #e3b341;
             --box-bg: #161b22;
             --box-border: #30363d;
             --muted: #8b949e;
@@ -43,7 +42,6 @@
         
         .section-title { color: var(--primary); font-weight: bold; margin-top: 40px; margin-bottom: 15px; text-transform: lowercase; font-size: 1.1rem; }
 
-        /* ASCII Art Styling */
         .ascii-art {
             background: var(--box-bg);
             color: var(--accent);
@@ -95,7 +93,15 @@
         </div>
     </header>
 
-    <ul class="tldr">
+    <details>
+        <summary>[context] what is interleaving?</summary>
+        <div class="details-content">
+            <p>In 5G-NR communications, interleaving is a critical physical layer (L1) process used to protect data against <strong>burst errors</strong>. In wireless channels, interference often destroys consecutive bits in a stream. By "shuffling" these bits before transmission, a burst error at the receiver is spread across different parts of the data packet, making it easy for Forward Error Correction (FEC) algorithms to repair the damage.</p>
+            <p><strong>The Bottleneck:</strong> While mathematically simple in software, implementing complex "triangular" shuffle patterns at wire-speed (Gbps) requires extreme hardware efficiency to avoid stalling the entire radio pipeline.</p>
+        </div>
+    </details>
+
+    <ul class="tldr" style="margin-top: 20px;">
         <li>&rarr; Achieved <span class="metric">0.41µs latency</span> | 13.6× faster than baseline</li>
         <li>&rarr; Mapped triangular indices to dual-port BRAM lookup tables</li>
         <li>&rarr; Parallel processing (16 bits/cycle) with pipelined execution</li>
