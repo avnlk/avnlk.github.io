@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Triangular Interleaver | @avnlk</title>
+    <title>Triangular Interleaver (5G-NR) | @avnlk</title>
     <style>
         :root {
             --bg-color: #0d1117;
@@ -13,207 +13,257 @@
             --box-bg: #161b22;
             --box-border: #30363d;
             --muted: #8b949e;
+            --danger: #f85149;
+            --success: #3fb950;
+            --purple: #bc8cff;
         }
-        
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: 'Courier New', Courier, monospace;
             margin: 0 auto;
-            max-width: 850px;
+            max-width: 860px;
             padding: 40px 20px;
             line-height: 1.6;
         }
-        
-        header { border-bottom: 1px solid var(--box-border); padding-bottom: 20px; margin-bottom: 30px; }
-        h1 { font-size: 2.2em; color: var(--primary); margin: 10px 0; letter-spacing: .02em; }
-        
-        .nav-links { display: flex; justify-content: space-between; font-size: 0.9rem; }
+
+        /* ── HEADER ── */
+        header { border-bottom: 1px solid var(--box-border); padding-bottom: 24px; margin-bottom: 30px; }
+        .nav-links { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 18px; }
         .nav-links a { color: var(--primary); text-decoration: none; }
         .nav-links a:hover { color: var(--accent); }
 
-        .spec-tags { display: flex; gap: 10px; margin: 15px 0; font-size: 0.7rem; }
+        h1 { font-size: 2.1em; color: var(--primary); margin: 10px 0 6px; letter-spacing: .02em; }
+        .subtitle { font-size: 0.85rem; color: var(--muted); margin-bottom: 14px; }
+
+        .spec-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; font-size: 0.7rem; }
         .tag { border: 1px solid var(--box-border); padding: 2px 8px; border-radius: 4px; color: var(--muted); }
         .tag-highlight { border-color: var(--accent); color: var(--accent); }
+        .tag-blue { border-color: var(--primary); color: var(--primary); }
+        .tag-green { border-color: var(--success); color: var(--success); }
 
-        .tldr { list-style-type: none; padding-left: 0; margin-bottom: 30px; border-left: 2px solid var(--box-border); padding-left: 20px; }
-        .tldr li { margin-bottom: 10px; }
-        .metric { color: var(--accent); font-weight: bold; }
+        /* ── TL;DR ── */
+        .tldr { list-style-type: none; padding: 0 0 0 20px; margin-bottom: 30px; border-left: 2px solid var(--box-border); }
+        .tldr li { margin-bottom: 10px; font-size: 0.9rem; }
         
-        .section-title { color: var(--primary); font-weight: bold; margin-top: 40px; margin-bottom: 15px; text-transform: lowercase; font-size: 1.1rem; }
+        .metric { color: var(--accent); font-weight: bold; }
+        .metric-bad { color: var(--danger); font-weight: bold; }
+        .metric-good { color: var(--success); font-weight: bold; }
 
-        .ascii-art {
-            background: var(--box-bg);
-            color: var(--accent);
-            padding: 20px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            line-height: 1.2;
-            overflow-x: auto;
-            border: 1px solid var(--box-border);
-            margin: 20px 0;
-            white-space: pre;
+        /* ── SECTION TITLES ── */
+        .section-title { color: var(--primary); font-weight: bold; margin-top: 42px; margin-bottom: 16px; text-transform: lowercase; font-size: 1.05rem; letter-spacing: 0.03em; }
+
+        /* ── INLINE STAT GRID ── */
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
+        .stat-box { background: var(--box-bg); border: 1px solid var(--box-border); border-radius: 6px; padding: 14px; text-align: center; }
+        .stat-box .stat-val { font-size: 1.4rem; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px; }
+        .stat-box .stat-val.blue { color: var(--primary); }
+        .stat-box .stat-val.green { color: var(--success); }
+        .stat-box .stat-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+        /* ── ASCII / CODE BLOCKS ── */
+        .ascii-art { background: var(--box-bg); color: var(--accent); padding: 20px; border-radius: 6px; font-size: 0.75rem; line-height: 1.5; overflow-x: auto; border: 1px solid var(--box-border); margin: 10px 0 20px; white-space: pre; }
+        code { background-color: #21262d; padding: 2px 6px; border-radius: 4px; font-size: 0.88em; color: var(--accent); }
+
+        /* ── TABLES ── */
+        table { width: 100%; border-collapse: collapse; background: var(--box-bg); border: 1px solid var(--box-border); font-size: 0.84rem; margin: 20px 0; }
+        th, td { padding: 11px 14px; border: 1px solid var(--box-border); text-align: center; }
+        th { color: var(--primary); font-weight: normal; background: #0d1117; }
+        td.left { text-align: left; }
+        tr.highlight-row { border: 2px solid var(--accent); }
+        tr.highlight-row td { background: #1c1f0f; }
+
+        /* ── FINDING BOXES ── */
+        .finding-box { background: #0d1117; border: 1px solid var(--box-border); border-left: 3px solid var(--accent); border-radius: 6px; padding: 14px 18px; margin: 14px 0; font-size: 0.87rem; line-height: 1.7; }
+        .finding-box.blue { border-left-color: var(--primary); }
+        .finding-box.green { border-left-color: var(--success); }
+        .finding-box.red { border-left-color: var(--danger); }
+        .finding-label { font-size: 0.68rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px; font-weight: bold;}
+        .finding-box.blue .finding-label { color: var(--primary); }
+        .finding-box.green .finding-label { color: var(--success); }
+        .finding-box.red .finding-label { color: var(--danger); }
+
+        /* ── DETAILS / COLLAPSIBLE ── */
+        details { background: var(--box-bg); border: 1px solid var(--box-border); border-radius: 6px; margin-bottom: 12px; padding: 14px 18px; transition: all 0.2s; }
+        details[open] { border-color: var(--primary); }
+        summary { cursor: pointer; color: var(--primary); font-weight: bold; outline: none; font-size: 0.92rem; list-style: none; display: flex; align-items: center; gap: 8px; }
+        summary::-webkit-details-marker { display: none; }
+        summary::before { content: '▶'; font-size: 0.6rem; color: var(--muted); transition: transform 0.2s; display: inline-block; }
+        details[open] summary::before { transform: rotate(90deg); }
+        summary:hover { color: var(--accent); }
+        .details-content { margin-top: 16px; padding-left: 14px; border-left: 1px solid var(--box-border); font-size: 0.88rem; }
+        
+        footer { margin-top: 60px; text-align: center; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--box-border); padding-top: 20px; }
+        footer a { color: inherit; text-decoration: none; }
+
+        @media (max-width: 600px) {
+            .stat-grid { grid-template-columns: 1fr 1fr; }
+            h1 { font-size: 1.6em; }
         }
 
-        table { width: 100%; border-collapse: collapse; background: var(--box-bg); border: 1px solid var(--box-border); font-size: 0.85rem; margin: 20px 0; }
-        th, td { padding: 12px; border: 1px solid var(--box-border); text-align: center; }
-        th { color: var(--primary); font-weight: normal; }
-
-        details { background: var(--box-bg); border: 1px solid var(--box-border); border-radius: 6px; margin-bottom: 15px; padding: 15px; }
-        summary { cursor: pointer; color: var(--primary); font-weight: bold; outline: none; }
-        summary:hover { color: var(--accent); }
-        .details-content { margin-top: 15px; padding-left: 15px; border-left: 1px solid var(--box-border); font-size: 0.9rem; }
-
-        code { background-color: var(--box-border); padding: 2px 5px; border-radius: 4px; font-size: 0.9em; }
-        footer { margin-top: 60px; text-align: center; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--box-border); padding-top: 20px; }
-
         @media print {
-            body { background: white !important; color: black !important; max-width: 100%; }
-            .nav-links, summary::before { display: none !important; }
-            details, .ascii-art, table { border: 1px solid black !important; background: white !important; color: black !important;}
-            .metric, .tag-highlight, h1, .section-title { color: black !important; font-weight: bold !important;}
+            body { background: white !important; color: black !important; }
+            .nav-links { display: none !important; }
+            details, table, .finding-box, .stat-box { border: 1px solid #ccc !important; background: white !important; color: black !important; }
+            .metric, .metric-good, .metric-bad, h1, .section-title { color: black !important; font-weight: bold !important; }
             details[open] .details-content { display: block !important; }
+            .ascii-art { color: black !important; background: #f5f5f5 !important; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="nav-links">
-            <a href="index.html">&larr; back</a>
-            <a href="javascript:window.print()" style="color: var(--muted);">[export_pdf]</a>
-        </div>
-        
-        <h1>Triangular Interleaver (5G-NR)</h1>
-        
-        <div class="spec-tags">
-            <span class="tag tag-highlight">FPGA_ACCELERATED</span>
-            <span class="tag">5G_NR_L1</span>
-            <span class="tag">STABLE_BUILD_V2.1</span>
-        </div>
-    </header>
-
-    <details>
-        <summary>[context] what is interleaving?</summary>
-        <div class="details-content">
-            <p>In 5G-NR communications, interleaving is a critical physical layer (L1) process used to protect data against <strong>burst errors</strong>. In wireless channels, interference often destroys consecutive bits in a stream. By "shuffling" these bits before transmission, a burst error at the receiver is spread across different parts of the data packet, making it easy for Forward Error Correction (FEC) algorithms to repair the damage.</p>
-            <p><strong>The Bottleneck:</strong> While mathematically simple in software, implementing complex "triangular" shuffle patterns at wire-speed (Gbps) requires extreme hardware efficiency to avoid stalling the entire radio pipeline.</p>
-        </div>
-    </details>
-
-    <ul class="tldr" style="margin-top: 20px;">
-        <li>&rarr; Achieved <span class="metric">0.41µs latency</span> | 13.6× faster than baseline</li>
-        <li>&rarr; Mapped triangular indices to dual-port BRAM lookup tables</li>
-        <li>&rarr; Parallel processing (16 bits/cycle) with pipelined execution</li>
-    </ul>
-
-    <div class="section-title">[visual_logic]</div>
-    
-    <p style="font-size: 0.85rem; color: var(--muted);">1. Software Concept: The Triangular Matrix (Row-In, Col-Out)</p>
-    <div class="ascii-art">
-  DATA IN (ROW) -->  [ D0  D1  D2  D3 ]
-                     [ D4  D5  D6     ]
-                     [ D7  D8         ]
-                     [ D9             ]
-                             |
-                             v
-  DATA OUT (COL) <-- [ D0  D4  D7  D9  D1  D5  D8  D2  D6  D3 ]
+<header>
+    <div class="nav-links">
+        <a href="index.html">&larr; back</a>
+        <a href="javascript:window.print()" style="color: var(--muted);">[export_pdf]</a>
     </div>
 
-    <p style="font-size: 0.85rem; color: var(--muted);">2. Hardware Architecture: O(1) Memory Lookup Path</p>
-    <div class="ascii-art">
- [AXI-STREAM IN] ----> [ INPUT BUFFER ] ----> [ PERMUTATION LOGIC ] ----> [AXI-STREAM OUT]
-                             |                        ^
-                             |       (READ ADDR)      |
-                             +------------------------+
-                                         |
-                                 [ DUAL-PORT BRAM ]
-                                 (LUT: f(i) -> addr)
+    <h1>Triangular Interleaver (5G-NR)</h1>
+    <div class="subtitle">Hardware acceleration of physical layer (L1) error correction mapping</div>
+
+    <div class="spec-tags">
+        <span class="tag tag-highlight">FPGA_ACCELERATED</span>
+        <span class="tag tag-blue">Verilog</span>
+        <span class="tag tag-blue">HLS</span>
+        <span class="tag tag-blue">Spartan-7 (xc7s50)</span>
+        <span class="tag tag-blue">BRAM</span>
+        <span class="tag">3GPP_TS_38.212</span>
+        <span class="tag tag-green">TIMING_MET</span>
     </div>
+</header>
 
-    <div class="section-title">[problem]</div>
-    <p>The standard triangular interleaver algorithm requires writing data row-wise into a triangular matrix and reading it out column-wise. In physical hardware, this leads to:</p>
-    <ul>
-        <li>Irregular memory access patterns that break cache locality.</li>
-        <li>Complex nested loop structures requiring heavy mathematical division and modulo operations.</li>
-        <li>Massive state-machine overhead resulting in multi-microsecond latency.</li>
-    </ul>
+<ul class="tldr">
+    <li>&rarr; Engineered a 5G-NR PUCCH channel interleaver meeting strict <span class="metric">&lt;11µs</span> latency requirements.</li>
+    <li>&rarr; Bypassed the 3GPP algorithmic spec (quadratic math) by precomputing physical permutation maps.</li>
+    <li>&rarr; Final architecture routes <span class="metric-good">16 bits per clock cycle</span> natively via dual-port BRAM lookup tables.</li>
+    <li>&rarr; Achieved <span class="metric-good">0.41µs wire-speed latency</span> at 100MHz — 13.6× faster than an optimized sequential FSM baseline.</li>
+</ul>
 
-    <div class="section-title">[key_insight]</div>
-    <p>The mathematical structure of a triangular matrix for a fixed block size is static and completely deterministic. Instead of computing <code>f(i)</code> at runtime, we store pre-calculated <code>perm[i]</code> and route directly via dual-port BRAM. This converts an O(N) math problem into a wire-speed O(1) lookup.</p>
-
-    <div class="section-title">[design]</div>
-    <ul>
-        <li><strong>Memory Mapping:</strong> Precomputed permutation table synthesized directly into FPGA BRAM.</li>
-        <li><strong>Loop Unrolling:</strong> Aggressive unrolling to process 16 elements per clock cycle instead of 1.</li>
-        <li><strong>Pipeline:</strong> Fully pipelined AXI4-Stream architecture to guarantee zero-stall throughput.</li>
-    </ul>
-
-    <div class="section-title">[results]</div>
-    <p>The table-based architecture achieved a <span class="metric">13.6× latency reduction</span> compared to the optimized algorithmic baseline, while maintaining a minimal resource footprint well below the 8% design constraint.</p>
-    
-    <table>
-        <thead>
-            <tr>
-                <th style="text-align: left;">Solution</th>
-                <th>BRAM</th>
-                <th>LUTs</th>
-                <th>FFs</th>
-                <th>Total Util</th>
-                <th>Latency</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td style="text-align: left;">Normal Optimized</td>
-                <td>5</td>
-                <td>1240</td>
-                <td>331</td>
-                <td>1.607%</td>
-                <td>5.57µs</td>
-            </tr>
-            <tr style="border: 2px solid var(--accent);">
-                <td style="text-align: left; font-weight: bold;">Precomputed Table</td>
-                <td>8</td>
-                <td>1815</td>
-                <td>715</td>
-                <td>2.588%</td>
-                <td class="metric">0.41µs</td>
-            </tr>
-        </tbody>
-    </table>
-    
-    <p style="font-size: 0.85rem; color: var(--muted);">&rarr; Target Constraints: &lt;11.00µs latency | &lt;8.00% total utilization.</p>
-
-    <div style="margin-top: 40px;">
-        <details>
-            <summary>🔬 Deep Dive: Why the naive approach is slow</summary>
-            <div class="details-content">
-                <p>In a naive C++ implementation, calculating the exact read/write index for a triangular structure requires solving quadratic equations or running deeply nested <code>for</code> loops.</p>
-                <p>When High-Level Synthesis (HLS) compiles nested loops with dynamic variables, it cannot synthesize a straight wire. Instead, it builds a massive Finite State Machine (FSM). For every single bit of data, the FPGA has to stall, calculate the math using ALUs and DSP slices, and update the state. This creates a severe pipeline bottleneck where the math calculation takes longer than the actual data movement.</p>
-            </div>
-        </details>
-
-        <details>
-            <summary>⚙️ Deep Dive: Lookup-based optimization</summary>
-            <div class="details-content">
-                <p>By shifting from a "Compute" paradigm to a "Memory" paradigm, we exploit the FPGA's physical architecture. The compile-time array is mapped directly to dual-port Block RAM (BRAM).</p>
-                <p>When the payload enters the AXI-Stream bus, the hardware no longer asks, <em>"What is the mathematical root of this index?"</em> Instead, it asks the BRAM, <em>"Where does bit 42 go?"</em> The BRAM responds in exactly 1 clock cycle. By unrolling the loop by a factor of 16, we query the BRAM 16 times concurrently, saturating the bus and achieving wire-speed latency.</p>
-            </div>
-        </details>
-
-        <details>
-            <summary>📊 Trade-offs: Silicon Area vs. Speed</summary>
-            <div class="details-content">
-                <p>This architecture intentionally trades logic area for pure execution speed. By precomputing the indices, we consume more BRAM tiles on the FPGA die. However, we simultaneously free up Look-Up Tables (LUTs) and DSP slices that would have been wasted on mathematical address generation.</p>
-                <p>In latency-critical environments like 5G baseband processing, memory space is relatively cheap since the data is predominantly in-flight, but nanoseconds are priceless. Thus, trading BRAM to save nanoseconds is mathematically optimal for the use case.</p>
-            </div>
-        </details>
+<div class="stat-grid">
+    <div class="stat-box">
+        <span class="stat-val green">0.41µs</span>
+        <span class="stat-label">Wire-speed Latency</span>
     </div>
+    <div class="stat-box">
+        <span class="stat-val">13.6×</span>
+        <span class="stat-label">Speedup Factor</span>
+    </div>
+    <div class="stat-box">
+        <span class="stat-val blue">2.58%</span>
+        <span class="stat-label">Silicon Utilization</span>
+    </div>
+    <div class="stat-box">
+        <span class="stat-val">100 MHz</span>
+        <span class="stat-label">Spartan-7 Clock</span>
+    </div>
+</div>
 
-    <footer>
-        return 0; // Architecture by <a href="index.html" style="color: inherit; text-decoration: none;">@avnlk</a>, HTML by AI.
-    </footer>
+<details open>
+    <summary>🧭 [context] what is the triangular interleaver?</summary>
+    <div class="details-content">
+        <p>In 5G-NR communications, interleaving protects data against <strong>burst errors</strong> by shuffling bits before transmission. The 3GPP specification dictates writing data row-wise into an isosceles triangle and reading it column-wise.</p>
+        <div class="ascii-art" style="margin-top: 15px;">
+ [SOFTWARE CONCEPT]
+
+ IN  --> [ D0  D1  D2  D3 ]
+         [ D4  D5  D6     ]
+         [ D7  D8         ]
+         [ D9             ]
+                 |
+ OUT <-- [ D0 D4 D7 D9 D1 D5 D8 D2 D6 D3 ]</div>
+    </div>
+</details>
+
+<div class="section-title">[architecture_evolution]</div>
+<p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 16px;">The path to 0.41µs required completely dismantling the 3GPP algorithm to align with FPGA hardware primitives.</p>
+
+<div class="finding-box red">
+    <div class="finding-label">Phase 1: The 3GPP Spec (Math Bottleneck)</div>
+    <p><strong>The Naive Approach:</strong> Algorithm 1 in TS38.212 requires determining a side length $T$ such that <code>T(T+1)/2 &ge; E</code>, then executing nested <code>for</code> loops that dynamically track and skip <code>(T(T+1)/2) - E</code> null bits. </p>
+    <p style="margin-top: 8px;"><strong>Why we didn't build it:</strong> Solving quadratic inequalities and running deep nested loops with dynamic variables is hostile to hardware. Synthesis would generate massive ALUs (DSP slices) and multi-microsecond computation stalls. This approach was rejected prior to synthesis.</p>
+</div>
+
+<div class="finding-box">
+    <div class="finding-label">Phase 2: The Algorithmic Baseline (FSM Bottleneck)</div>
+    <p><strong>The Optimization:</strong> We designed a baseline that precomputed row-offsets into a BRAM array (<code>row_start</code>) to avoid dynamic division and quadratic math at runtime. The data path used a state machine to track coordinates (<code>r</code>, <code>c</code>) and skip nulls via simple addition: <code>k_src = row_start[r] + c</code>.</p>
+    <p style="margin-top: 8px; color: var(--accent);"><strong>The Limit:</strong> While mathematically optimized, the state machine created a <strong>sequential data dependency</strong>. The hardware could only resolve the destination for <strong>1 bit per clock cycle</strong>. Processing 512 bits required over 500 cycles.</p>
+</div>
+
+<div class="finding-box green">
+    <div class="finding-label">Phase 3: The Final Architecture (O(1) BRAM Parallelism)</div>
+    <p><strong>The Breakthrough:</strong> The structure of the triangle for any fixed block size $E$ is completely deterministic. We replaced the state machine entirely by calculating all valid row-to-column permutations at compile-time and storing them in a 2D ROM array (<code>PERM_TABLE</code>).</p>
+    <p style="margin-top: 8px;"><strong>The Result:</strong> By breaking the sequential dependency, we utilized <code>#pragma HLS UNROLL</code> to query the BRAM 16 times concurrently. The FPGA now asks the memory for the routing map and moves <strong>16 bits per clock cycle</strong>, achieving true wire-speed saturation of the AXI4-Stream bus.</p>
+</div>
+
+<div class="section-title">[synthesis_results]</div>
+
+<table>
+    <thead>
+        <tr>
+            <th class="left">Architecture Phase</th>
+            <th>Clock Target</th>
+            <th>BRAM</th>
+            <th>LUTs</th>
+            <th>Total Util</th>
+            <th>Latency</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="left" style="color: var(--muted);">Phase 1 (Naive Math)</td>
+            <td style="color: var(--muted);">-</td>
+            <td style="color: var(--muted);">-</td>
+            <td style="color: var(--muted);">-</td>
+            <td style="color: var(--muted);">-</td>
+            <td style="color: var(--muted);">Rejected</td>
+        </tr>
+        <tr>
+            <td class="left">Phase 2 (Optimized FSM)</td>
+            <td>100 MHz</td>
+            <td>5</td>
+            <td>1240</td>
+            <td>1.607%</td>
+            <td class="metric-bad">5.57µs</td>
+        </tr>
+        <tr class="highlight-row">
+            <td class="left"><strong>Phase 3 (BRAM Parallel)</strong></td>
+            <td><strong>100 MHz</strong></td>
+            <td><strong>8</strong></td>
+            <td><strong>1815</strong></td>
+            <td><strong>2.588%</strong></td>
+            <td class="metric-good">0.41µs</td>
+        </tr>
+    </tbody>
+</table>
+
+<p style="font-size: 0.85rem; color: var(--muted);">&rarr; <strong>Constraints:</strong> Target was &lt;11.00µs latency and &lt;8.00% utilization. Both Phase 2 and 3 met constraints, but Phase 3 provides massive latency headroom for scaling.</p>
+
+<div class="section-title">[engineering_deep_dives]</div>
+
+<details>
+    <summary>⚖️ Trade-offs: Silicon Area vs. Execution Speed</summary>
+    <div class="details-content">
+        <p>The Phase 3 architecture intentionally trades BRAM footprint for execution speed. By hardcoding the indices into a <code>PERM_TABLE</code>, we consume 3 extra BRAM-18K tiles on the Spartan-7 die compared to the baseline. However, in 5G baseband processing, on-die memory is cheap compared to the critical value of nanoseconds saved in the radio path. We also free up DSP slices that would have been wasted on math operations.</p>
+    </div>
+</details>
+
+<details>
+    <summary>✅ Verification Methodology</summary>
+    <div class="details-content">
+        <div class="finding-box blue">
+            <div class="finding-label">3GPP Corner-Case Validation</div>
+            Design correctness was verified against the 16 golden test vectors provided in the 3GPP assignment specifications. The Verilog RTL output was bit-matched through C/RTL Co-simulation, covering all payload sizes from E=16 to E=512 with zero margin for error across all triangular null-skipping conditions.
+        </div>
+    </div>
+</details>
+
+<footer>
+    return 0; // Architecture by <a href="index.html">@avnlk</a> &nbsp;|&nbsp; HTML by AI
+</footer>
 
 </body>
 </html>
