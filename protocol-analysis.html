@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocol Performance Analysis | @avnlk</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-main: #c9d1d9;
+            --primary: #58a6ff;
+            --accent: #e3b341;
+            --box-bg: #161b22;
+            --box-border: #30363d;
+            --muted: #8b949e;
+            --danger: #f85149;
+            --success: #3fb950;
+            --purple: #bc8cff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0 auto;
+            max-width: 860px;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        header {
+            border-bottom: 1px solid var(--box-border);
+            padding-bottom: 24px;
+            margin-bottom: 20px;
+        }
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 18px;
+        }
+        .nav-links a { color: var(--primary); text-decoration: none; }
+        .nav-links a:hover { color: var(--accent); }
+
+        h1 { font-size: 2.1em; color: var(--primary); margin: 10px 0 6px; letter-spacing: .02em; }
+        .subtitle { font-size: 0.85rem; color: var(--muted); margin-bottom: 14px; }
+
+        .spec-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; font-size: 0.7rem; }
+        .tag { border: 1px solid var(--box-border); padding: 2px 8px; border-radius: 4px; color: var(--muted); }
+        .tag-highlight { border-color: var(--accent); color: var(--accent); }
+        .tag-blue { border-color: var(--primary); color: var(--primary); }
+        .tag-green { border-color: var(--success); color: var(--success); }
+
+        /* ── JUMP NAV (DEFAULT/MOBILE) ── */
+        .jump-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 12px 16px;
+            background: var(--box-bg);
+            border: 1px solid var(--box-border);
+            border-radius: 6px;
+            margin: 18px 0 28px;
+            font-size: 0.78rem;
+        }
+        .jump-nav a { color: var(--muted); text-decoration: none; padding: 2px 6px; border-radius: 3px; transition: all 0.2s ease; }
+        .jump-nav a:hover { color: var(--accent); background: #21262d; }
+        .jump-nav span { color: var(--box-border); }
+
+        /* ── JUMP NAV (DESKTOP SIDEBAR) ── */
+        @media (min-width: 1300px) {
+            .jump-nav {
+                position: fixed;
+                top: 120px;
+                left: calc(50% - 630px);
+                width: 180px;
+                flex-direction: column;
+                background: transparent;
+                border: none;
+                padding: 0;
+            }
+            .jump-nav span { display: none; }
+            .jump-nav a {
+                padding: 8px 12px;
+                border-left: 2px solid var(--box-border);
+                border-radius: 0;
+                margin-bottom: 4px;
+            }
+            .jump-nav a:hover {
+                background: transparent;
+                color: var(--primary);
+                border-left-color: var(--primary);
+                padding-left: 18px;
+            }
+        }
+
+        .section-title {
+            color: var(--primary);
+            font-weight: bold;
+            margin-top: 42px;
+            margin-bottom: 16px;
+            text-transform: lowercase;
+            font-size: 1.05rem;
+            letter-spacing: 0.03em;
+            scroll-margin-top: 20px;
+        }
+
+        .tldr { list-style-type: none; padding: 0 0 0 20px; margin-bottom: 24px; border-left: 2px solid var(--box-border); }
+        .tldr li { margin-bottom: 10px; font-size: 0.9rem; }
+        .metric { color: var(--accent); font-weight: bold; }
+        .metric-bad { color: var(--danger); font-weight: bold; }
+        .metric-good { color: var(--success); font-weight: bold; }
+
+        /* KILLER CALLOUTS */
+        .callout-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+        .callout { background: var(--box-bg); border: 1px solid var(--box-border); border-radius: 6px; padding: 16px 18px; font-size: 0.84rem; }
+        .callout.red { border-left: 3px solid var(--danger); }
+        .callout.yellow { border-left: 3px solid var(--accent); }
+        .callout.green { border-left: 3px solid var(--success); }
+        .callout.blue { border-left: 3px solid var(--primary); }
+        .callout-number { font-size: 1.8rem; font-weight: bold; display: block; margin-bottom: 4px; line-height: 1.1; }
+        .callout-number.red { color: var(--danger); }
+        .callout-number.yellow { color: var(--accent); }
+        .callout-number.green { color: var(--success); }
+        .callout-number.blue { color: var(--primary); }
+        .callout-desc { color: var(--muted); font-size: 0.78rem; line-height: 1.5; }
+
+        .ascii-art {
+            background: var(--box-bg);
+            color: var(--accent);
+            padding: 20px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            border: 1px solid var(--box-border);
+            margin: 20px 0;
+            white-space: pre;
+        }
+
+        code { background-color: #21262d; padding: 2px 6px; border-radius: 4px; font-size: 0.88em; color: var(--accent); }
+
+        table { width: 100%; border-collapse: collapse; background: var(--box-bg); border: 1px solid var(--box-border); font-size: 0.84rem; margin: 20px 0; }
+        th, td { padding: 11px 14px; border: 1px solid var(--box-border); text-align: center; }
+        th { color: var(--primary); font-weight: normal; background: #0d1117; }
+        td.left { text-align: left; }
+        tr.highlight-row td { background: #1c1f0f; border-color: var(--accent); }
+
+        details { background: var(--box-bg); border: 1px solid var(--box-border); border-radius: 6px; margin-bottom: 12px; padding: 14px 18px; transition: border-color 0.2s; }
+        details[open] { border-color: var(--primary); }
+        summary { cursor: pointer; color: var(--primary); font-weight: bold; outline: none; font-size: 0.92rem; list-style: none; display: flex; align-items: center; gap: 8px; user-select: none; }
+        summary::-webkit-details-marker { display: none; }
+        summary::before { content: '▶'; font-size: 0.6rem; color: var(--muted); transition: transform 0.2s; display: inline-block; flex-shrink: 0; }
+        details[open] summary::before { transform: rotate(90deg); }
+        summary:hover { color: var(--accent); }
+        .details-content { margin-top: 16px; padding-left: 14px; border-left: 1px solid var(--box-border); font-size: 0.88rem; }
+        .details-content p { margin-bottom: 12px; }
+        .details-content ul { padding-left: 18px; margin-bottom: 12px; }
+        .details-content li { margin-bottom: 6px; }
+
+        .finding-box { background: #0d1117; border: 1px solid var(--box-border); border-left: 3px solid var(--accent); border-radius: 6px; padding: 14px 18px; margin: 14px 0; font-size: 0.87rem; line-height: 1.7; }
+        .finding-box.blue { border-left-color: var(--primary); }
+        .finding-box.green { border-left-color: var(--success); }
+        .finding-box.red { border-left-color: var(--danger); }
+        .finding-box.purple { border-left-color: var(--purple); }
+        .finding-label { font-size: 0.68rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px; }
+        .finding-box.blue .finding-label { color: var(--primary); }
+        .finding-box.green .finding-label { color: var(--success); }
+        .finding-box.red .finding-label { color: var(--danger); }
+        .finding-box.purple .finding-label { color: var(--purple); }
+
+        .protocol-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 20px 0; }
+        .protocol-card { background: var(--box-bg); border: 1px solid var(--box-border); border-radius: 6px; padding: 16px; font-size: 0.83rem; }
+        .protocol-card .proto-name { color: var(--primary); font-weight: bold; margin-bottom: 10px; font-size: 0.92rem; }
+        .protocol-card ul { padding-left: 14px; margin: 0; }
+        .protocol-card li { margin-bottom: 5px; }
+        .protocol-card .proto-verdict { font-size: 0.75rem; margin-top: 12px; color: var(--muted); border-top: 1px solid var(--box-border); padding-top: 8px; }
+
+        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
+        .stat-box { background: var(--box-bg); border: 1px solid var(--box-border); border-radius: 6px; padding: 14px; text-align: center; }
+        .stat-box .stat-val { font-size: 1.5rem; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px; }
+        .stat-box .stat-val.blue { color: var(--primary); }
+        .stat-box .stat-val.green { color: var(--success); }
+        .stat-box .stat-val.red { color: var(--danger); }
+        .stat-box .stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+        .zone-bar { display: flex; border-radius: 6px; overflow: hidden; margin: 16px 0; height: 40px; font-size: 0.75rem; font-weight: bold; }
+        .zone { display: flex; align-items: center; justify-content: center; padding: 0 10px; text-align: center; line-height: 1.3; }
+        .zone-1 { background: #1a2a1a; color: var(--success); border: 1px solid var(--success); flex: 2; }
+        .zone-2 { background: #1a1a2a; color: var(--primary); border: 1px solid var(--primary); flex: 3; }
+        .zone-3 { background: #2a1a1a; color: var(--danger); border: 1px solid var(--danger); flex: 2; }
+
+        .compare-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+        .compare-box { background: var(--box-bg); border: 1px solid var(--box-border); border-radius: 6px; padding: 14px; font-size: 0.84rem; line-height: 1.7; }
+        .compare-box .cb-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+
+        footer { margin-top: 60px; text-align: center; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--box-border); padding-top: 20px; }
+        footer a { color: inherit; text-decoration: none; }
+
+        @media (max-width: 600px) {
+            .protocol-grid, .callout-row, .compare-row { grid-template-columns: 1fr; }
+            .stat-grid { grid-template-columns: 1fr 1fr; }
+            h1 { font-size: 1.6em; }
+            .zone-bar { height: auto; flex-direction: column; }
+            .zone { height: 36px; }
+        }
+
+        @media print {
+            body { background: white !important; color: black !important; }
+            .nav-links, .jump-nav { display: none !important; }
+            details, table, .finding-box, .protocol-card, .stat-box, .compare-box, .callout { border: 1px solid #ccc !important; background: white !important; color: black !important; }
+            .metric, .metric-good, .metric-bad, h1, .section-title { color: black !important; font-weight: bold !important; }
+            .ascii-art { color: black !important; background: #f5f5f5 !important; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="nav-links">
+        <a href="index.html">&larr; back</a>
+        <a href="javascript:window.print()" style="color:var(--muted)">[export_pdf]</a>
+    </div>
+    <h1>Protocol Performance Analysis</h1>
+    <div class="subtitle">TCP vs REST vs gRPC — kernel-level characterization on a single-node Linux system</div>
+    <div class="spec-tags">
+        <span class="tag tag-highlight">SYSTEMS_INFRA</span>
+        <span class="tag tag-highlight">KERNEL_PROFILING</span>
+        <span class="tag tag-blue">Go_1.25</span>
+        <span class="tag tag-blue">perf_6.8</span>
+        <span class="tag tag-blue">FlameGraph</span>
+        <span class="tag tag-blue">protobuf</span>
+        <span class="tag tag-blue">taskset</span>
+        <span class="tag tag-blue">pandas</span>
+        <span class="tag">LINUX_KERNEL_6.8.0</span>
+        <span class="tag">Ubuntu_24.04</span>
+        <span class="tag">9.9M_SAMPLES</span>
+        <span class="tag tag-green">IIIT_BANGALORE</span>
+    </div>
+</header>
+
+<nav class="jump-nav">
+    <a href="#setup">[setup]</a>
+    <span>|</span>
+    <a href="#profiles">[protocol_profiles]</a>
+    <span>|</span>
+    <a href="#results">[results]</a>
+    <span>|</span>
+    <a href="#profiling">[kernel_profiling]</a>
+    <span>|</span>
+    <a href="#anomalies">[anomalies]</a>
+    <span>|</span>
+    <a href="#discussion">[discussion]</a>
+    <span>|</span>
+    <a href="#when">[when_to_use]</a>
+</nav>
+
+<ul class="tldr">
+    <li>&rarr; <span class="metric">9,915,000 latency measurements</span> across 75 experiments (5 message sizes × 5 concurrency levels × 3 protocols)</li>
+    <li>&rarr; TCP has lowest average latency (<span class="metric-good">18µs baseline</span>) but <span class="metric-bad">catastrophic P99 tail</span> — 121× amplification at 64KB, c=500. Zero flow control.</li>
+    <li>&rarr; gRPC wins tail latency under stress: <span class="metric-good">P99 = 186ms vs TCP's 1,049ms</span> — HTTP/2 WINDOW_UPDATE frames prevent buffer saturation.</li>
+    <li>&rarr; REST generates <span class="metric-bad">914K context switches at c=500</span> — 7.5× more than TCP — super-linear growth from one-goroutine-per-connection model.</li>
+    <li>&rarr; REST and gRPC make <span class="metric-bad">36–41× more futex calls</span> than TCP — synchronization is the dominant overhead source, not protocol parsing.</li>
+    <li>&rarr; Page fault step function at 32KB traced to <code>_MaxSmallSize = 32768</code> in Go's allocator — confirmed by ruling out HTTP/2 frame splitting via controlled 8KB/16KB/32KB frame-size experiments.</li>
+    <li>&rarr; Three-zone buffer behavior identified across message sizes — each zone explained by competing allocation strategies between HTTP/1.1 and HTTP/2.</li>
+</ul>
+
+<div class="callout-row">
+    <div class="callout red">
+        <span class="callout-number red">914K</span>
+        <span class="callout-desc">REST context switches at c=500 — <strong>7.5× more than TCP</strong>. HTTP/1.1's one-goroutine-per-connection model causes super-linear growth under load.</span>
+    </div>
+    <div class="callout yellow">
+        <span class="callout-number yellow">36–41×</span>
+        <span class="callout-desc">More futex (mutex lock) calls in REST/gRPC vs TCP. Synchronization overhead — not parsing — is the dominant cost of higher-level protocols.</span>
+    </div>
+</div>
+<div class="callout-row">
+    <div class="callout red">
+        <span class="callout-number red">121×</span>
+        <span class="callout-desc">TCP tail amplification at 64KB, c=500. P99 = 1,049ms while median = 8.6ms. No flow control means unbounded queue buildup under stress.</span>
+    </div>
+    <div class="callout green">
+        <span class="callout-number green">2×</span>
+        <span class="callout-desc">gRPC P99/median ratio at max load — stable tail latency. HTTP/2 flow control keeps P99 within 2× of median regardless of concurrency level.</span>
+    </div>
+</div>
+
+<details>
+    <summary>🧭 [context] why does protocol choice matter?</summary>
+    <div class="details-content">
+        <p>In distributed systems, the protocol stack sits on the critical path of every request. The choice between TCP, REST, and gRPC is not merely an API preference — it is a latency and throughput contract with the operating system, the kernel scheduler, and the network stack.</p>
+        <p><strong>The Problem:</strong> Most protocol comparisons report only end-to-end latency under a single load condition. They do not explain <em>why</em> protocols differ, nor do they show how overhead evolves with message size and concurrency. Without this, protocol selection is intuition-driven rather than evidence-based.</p>
+        <p><strong>Design principle — uniform serialization:</strong> All three protocols used protobuf serialization, including raw TCP. This deliberately isolates protocol overhead as the only variable. Any latency difference is attributable to framing, flow control, and multiplexing — not encoding cost.</p>
+    </div>
+</details>
+
+<div class="section-title" id="setup">[experimental_setup]</div>
+
+<div class="ascii-art">
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │  Platform : Ubuntu 24.04 LTS  |  Kernel : 6.8.0-101-generic       │
+  │  CPU      : Hybrid P/E-core   |  P-cores: 4500 MHz max            │
+  │  Language : Go 1.25.0         |  Serialization: protobuf (all 3)  │
+  └─────────────────────────────────────────────────────────────────────┘
+
+  Message Sizes  →  64B    256B    1KB    4KB    64KB
+  Concurrency    →  1      10      50     100    500   (concurrent clients)
+  Protocols      →  TCP (raw)    REST (HTTP/1.1)    gRPC (HTTP/2)
+
+  75 configurations × (concurrency × 1,000 requests) = 9,915,000 samples
+
+  CPU Pinning    →  Server pinned to CPU1 (P-core, 4500MHz) via taskset
+                    Client allowed on CPUs 0,2,3,4,5,6,7 (P-cores only)
+                    E-cores (2500MHz) excluded entirely
+  Priority       →  sudo nice -n -20  (highest OS scheduling priority)
+  Isolation      →  One protocol benchmarked at a time — others stopped
+  Warmup         →  1 warmup request per client before measurement begins
+</div>
+
+<details>
+    <summary>🔧 [tools] profiling stack</summary>
+    <div class="details-content">
+        <table>
+            <thead><tr><th style="text-align:left">Tool</th><th>Version</th><th style="text-align:left">Purpose</th></tr></thead>
+            <tbody>
+                <tr><td class="left"><code>perf stat</code></td><td>6.8.12</td><td class="left">Hardware counters: CPU cycles, instructions, IPC, cache misses, branch misses, context switches</td></tr>
+                <tr><td class="left"><code>perf record</code></td><td>6.8.12</td><td class="left">CPU time sampling at 999Hz with call graph for flame graph generation</td></tr>
+                <tr><td class="left"><code>perf trace</code></td><td>6.8.12</td><td class="left">Syscall frequency: futex, read, write, epoll_pwait, nanosleep, sched_yield</td></tr>
+                <tr><td class="left">FlameGraph</td><td>Gregg</td><td class="left">stackcollapse-perf.pl + flamegraph.pl — visual CPU time attribution</td></tr>
+                <tr><td class="left">Go</td><td>1.25.0</td><td class="left">All protocol implementations (net, net/http, google.golang.org/grpc)</td></tr>
+                <tr><td class="left">protoc</td><td>25.1</td><td class="left">Protocol Buffer code generation — shared message format across all three</td></tr>
+                <tr><td class="left">taskset</td><td>2.39.3</td><td class="left">CPU core pinning — server to CPU1, client to CPUs 0,2,3,4,5,6,7</td></tr>
+                <tr><td class="left">Python / pandas</td><td>3.12</td><td class="left">9.9M sample aggregation, P50/P99/P999 computation, plot generation</td></tr>
+            </tbody>
+        </table>
+        <div class="finding-box blue">
+            <div class="finding-label">why Go over C++?</div>
+            Go provides production-quality libraries for all three protocols under one consistent runtime — same GC, same scheduler, same allocator. Protocol differences are not contaminated by implementation quality gaps. Go's M:N goroutine model also maps 500 goroutines to ~8 OS threads at high concurrency, keeping client-side scheduling noise lower than 500 raw pthreads would in C++. Tradeoff: Go runtime overhead is inseparable from protocol overhead. A C++ baseline is left as future work.
+        </div>
+    </div>
+</details>
+
+<div class="section-title" id="profiles">[protocol_profiles]</div>
+
+<div class="protocol-grid">
+    <div class="protocol-card">
+        <div class="proto-name">TCP (raw)</div>
+        <ul>
+            <li>Manual 4-byte length-prefix framing</li>
+            <li>No application-level flow control</li>
+            <li>One persistent connection per client</li>
+            <li>Zero protocol state management</li>
+            <li>All work done in kernel space</li>
+        </ul>
+        <div class="proto-verdict">→ Fastest average. Worst tail. Best CPU efficiency.</div>
+    </div>
+    <div class="protocol-card">
+        <div class="proto-name">REST (HTTP/1.1)</div>
+        <ul>
+            <li>Persistent connections (net/http)</li>
+            <li>Binary protobuf body — not JSON</li>
+            <li>One goroutine per connection</li>
+            <li>Connection pool with mutex locking</li>
+            <li>6 user-space layers before kernel</li>
+        </ul>
+        <div class="proto-verdict">→ 2× TCP overhead. Scales poorly under concurrency.</div>
+    </div>
+    <div class="protocol-card">
+        <div class="proto-name">gRPC (HTTP/2)</div>
+        <ul>
+            <li>Stream multiplexing over one connection</li>
+            <li>Built-in flow control (WINDOW_UPDATE)</li>
+            <li>HPACK header compression</li>
+            <li>Binary 9-byte frame headers</li>
+            <li>8+ user-space layers before kernel</li>
+        </ul>
+        <div class="proto-verdict">→ Best tail latency. Best under stress. Highest baseline cost.</div>
+    </div>
+</div>
+
+<div class="section-title" id="results">[results]</div>
+
+<p style="font-size:0.82rem; color:var(--muted); margin-bottom:10px;">Performance zone summary — latency ordering is not monotonic across message sizes:</p>
+<div class="zone-bar">
+    <div class="zone zone-1">Zone 1: &lt;2KB<br>REST faster</div>
+    <div class="zone zone-2">Zone 2: 2–31KB<br>gRPC faster</div>
+    <div class="zone zone-3">Zone 3: ≥32KB<br>REST faster again</div>
+</div>
+<p style="font-size:0.82rem; color:var(--muted); margin-bottom:20px;">Each zone has a distinct root cause — see anomalies section for full kernel-level investigation.</p>
+
+<details open>
+    <summary>📊 Baseline latency vs message size (concurrency = 1)</summary>
+    <div class="details-content">
+        <table>
+            <thead><tr><th style="text-align:left">Message Size</th><th>TCP (µs)</th><th>REST (µs)</th><th>gRPC (µs)</th><th>REST/TCP</th><th>gRPC/TCP</th></tr></thead>
+            <tbody>
+                <tr><td class="left">64B</td><td class="metric-good">18.8</td><td>35.8</td><td>47.9</td><td>1.9×</td><td>2.5×</td></tr>
+                <tr><td class="left">256B</td><td class="metric-good">17.3</td><td>34.2</td><td>45.0</td><td>2.0×</td><td>2.6×</td></tr>
+                <tr><td class="left">1KB</td><td class="metric-good">18.5</td><td>42.3</td><td>46.3</td><td>2.3×</td><td>2.5×</td></tr>
+                <tr><td class="left">4KB ⚠️</td><td class="metric-good">21.2</td><td>55.4</td><td>50.4</td><td>2.6×</td><td>2.4×</td></tr>
+                <tr><td class="left">64KB</td><td class="metric-good">56.6</td><td>199.1</td><td>216.3</td><td>3.5×</td><td>3.8×</td></tr>
+            </tbody>
+        </table>
+        <p>TCP is consistently 2–3.8× faster. At 4KB, REST (55.4µs) exceeds gRPC (50.4µs) — reversing expected ordering. Reproduced across multiple runs. This is the Zone 1→2 crossover. See anomaly section.</p>
+    </div>
+</details>
+
+<details>
+    <summary>📈 Latency vs concurrency (64B messages)</summary>
+    <div class="details-content">
+        <table>
+            <thead><tr><th>Concurrency</th><th>TCP (µs)</th><th>REST (µs)</th><th>gRPC (µs)</th><th>REST/TCP</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td class="metric-good">18.8</td><td>35.8</td><td>47.9</td><td>1.9×</td></tr>
+                <tr><td>10</td><td class="metric-good">94.7</td><td>145.4</td><td>194.6</td><td>1.5×</td></tr>
+                <tr><td>50</td><td class="metric-good">486.7</td><td>777.7</td><td>889.2</td><td>1.6×</td></tr>
+                <tr><td>100</td><td class="metric-good">936.8</td><td>1,631.0</td><td>1,848.3</td><td>1.7×</td></tr>
+                <tr><td>500</td><td class="metric-good">4,996.8</td><td>9,023.5</td><td>10,830.5</td><td>1.8×</td></tr>
+            </tbody>
+        </table>
+        <p>All three scale roughly linearly at 64B. REST/TCP ratio stays stable at 1.5–1.9× — REST overhead is largely fixed per request at small message sizes.</p>
+    </div>
+</details>
+
+<details open>
+    <summary>🔥 Tail latency at max load (64KB, c=500) — key finding</summary>
+    <div class="details-content">
+        <table>
+            <thead><tr><th style="text-align:left">Protocol</th><th>Median (µs)</th><th>P99 (µs)</th><th>P99/Median</th><th>Verdict</th></tr></thead>
+            <tbody>
+                <tr><td class="left">TCP</td><td>8,644</td><td class="metric-bad">1,049,728</td><td class="metric-bad">121×</td><td style="color:var(--danger)">tail collapse</td></tr>
+                <tr><td class="left">REST</td><td>16,435</td><td class="metric-bad">1,202,649</td><td class="metric-bad">73×</td><td style="color:var(--danger)">worse than TCP</td></tr>
+                <tr class="highlight-row"><td class="left"><strong>gRPC</strong></td><td>95,814</td><td class="metric-good">186,827</td><td class="metric-good">2×</td><td style="color:var(--success)">stable tail</td></tr>
+            </tbody>
+        </table>
+        <div class="finding-box red">
+            <div class="finding-label">protocol inversion effect</div>
+            Low concurrency, small messages: <strong>TCP (18µs) &lt; REST (35µs) &lt; gRPC (47µs)</strong><br>
+            High concurrency, large messages (P99): <strong>gRPC (186ms) &lt;&lt; TCP (1,049ms) &lt; REST (1,202ms)</strong><br><br>
+            The performance ranking completely inverts. The fastest protocol at average case has the worst tail latency at scale.
+        </div>
+        <p><strong>Why gRPC wins:</strong> HTTP/2 WINDOW_UPDATE frames explicitly limit in-flight unacknowledged data. TCP and HTTP/1.1 have no equivalent mechanism — senders blast data regardless of receiver capacity, causing kernel socket buffer saturation and catastrophic queue buildup.</p>
+    </div>
+</details>
+
+<div class="section-title" id="profiling">[kernel_profiling]</div>
+
+<details open>
+    <summary>⚡ Hardware performance counters — perf stat (64B, c=1, 10K requests)</summary>
+    <div class="details-content">
+        <table>
+            <thead><tr><th style="text-align:left">Counter</th><th>TCP</th><th>REST</th><th>gRPC</th><th>REST/TCP</th></tr></thead>
+            <tbody>
+                <tr><td class="left">CPU Cycles</td><td class="metric-good">567M</td><td>1,350M</td><td>1,539M</td><td>2.4×</td></tr>
+                <tr><td class="left">Instructions</td><td class="metric-good">751M</td><td>1,549M</td><td>1,674M</td><td>2.1×</td></tr>
+                <tr><td class="left">IPC</td><td class="metric-good">1.32</td><td>1.14</td><td>1.08</td><td>—</td></tr>
+                <tr><td class="left">Cache References</td><td class="metric-good">2.4M</td><td>14.5M</td><td>18.6M</td><td>6.0×</td></tr>
+                <tr><td class="left">Cache Misses</td><td class="metric-good">222K</td><td>456K</td><td>548K</td><td>2.1×</td></tr>
+                <tr><td class="left">Branch Misses</td><td class="metric-good">2.2M</td><td>3.8M</td><td>4.6M</td><td>1.7×</td></tr>
+                <tr><td class="left">Context Switches</td><td class="metric-good">14,708</td><td>42,629</td><td>45,193</td><td>2.9×</td></tr>
+                <tr><td class="left">User Time</td><td class="metric-good">33ms (20%)</td><td>187ms (46%)</td><td>245ms (53%)</td><td>—</td></tr>
+                <tr><td class="left">Sys Time</td><td>131ms (80%)</td><td>215ms (54%)</td><td>210ms (47%)</td><td>—</td></tr>
+            </tbody>
+        </table>
+        <div class="finding-box">
+            <div class="finding-label">user vs sys time — where work happens</div>
+            TCP: 80% sys — kernel-dominated. Constant ratio regardless of concurrency level.<br>
+            REST: 54% sys at c=1 → 35% sys at c=500 — protocol logic dominates at scale.<br>
+            gRPC: 47% sys at c=1 → 26% sys at c=500 — HTTP/2 state machine takes over at scale.
+        </div>
+        <p>TCP's higher IPC (1.32 vs 1.08 for gRPC) indicates fewer pipeline stalls — simpler, more predictable code paths. The 6× cache reference disparity reflects extensive buffer scanning by HTTP header parsing.</p>
+    </div>
+</details>
+
+<details>
+    <summary>🔥 Flame graph analysis — call stack depth per protocol</summary>
+    <div class="details-content">
+        <p style="color:var(--muted); font-size:0.85rem; margin-bottom:14px;">Generated using perf record at 999Hz + stackcollapse-perf.pl + flamegraph.pl. Wider = more CPU time. File sizes alone tell the story: TCP 149KB, gRPC 332KB.</p>
+        <div class="finding-box blue">
+            <div class="finding-label">TCP — shallow, kernel-dominated</div>
+            2–3 user-space frames before kernel:<br>
+            <code>main.sendRecv → syscall.write → vfs_write → sock_write_iter → inet_sendmsg → tcp_sendmsg → ip_queue_xmit → __do_softirq</code><br><br>
+            No futex calls visible anywhere. Zero synchronization overhead. Most CPU time is the kernel doing actual network work.
+        </div>
+        <div class="finding-box">
+            <div class="finding-label">REST — deep HTTP/1.1 pipeline</div>
+            6 user-space frames before kernel:<br>
+            <code>main.sendRecv → (*Client).Post → (*Transport).dialConn → persistConnWrite → bufio.Flush → net.(*conn).Write → syscall.write</code><br><br>
+            Each layer reads/writes HTTP header buffers — explains the 6× cache reference increase. futex_wait calls visible — connection pool locking per request.
+        </div>
+        <div class="finding-box purple">
+            <div class="finding-label">gRPC — distributed CPU across subsystems</div>
+            8+ user-space frames. CPU time spread across: HTTP/2 transport, protobuf, stream management, flow control, keepalive pings — each visible as distinct towers. Multiple futex call sites for stream table locking.
+        </div>
+    </div>
+</details>
+
+<details>
+    <summary>🖥️ Syscall analysis — perf trace (64B, c=1, 10K requests)</summary>
+    <div class="details-content">
+        <table>
+            <thead><tr><th style="text-align:left">Syscall</th><th>TCP</th><th>REST</th><th>gRPC</th><th style="text-align:left">Significance</th></tr></thead>
+            <tbody>
+                <tr><td class="left"><code>futex</code></td><td class="metric-good">1,335</td><td class="metric-bad">48,256</td><td class="metric-bad">55,332</td><td class="left">36–41× higher in REST/gRPC</td></tr>
+                <tr><td class="left"><code>read</code></td><td>29,644</td><td>20,305</td><td>26,384</td><td class="left">TCP does most raw I/O directly</td></tr>
+                <tr><td class="left"><code>write</code></td><td>19,836</td><td>10,381</td><td>14,137</td><td class="left">REST/gRPC buffer and batch writes</td></tr>
+                <tr><td class="left"><code>epoll_pwait</code></td><td>19,499</td><td>18,899</td><td>32,667</td><td class="left">gRPC monitors more I/O events</td></tr>
+                <tr><td class="left"><code>nanosleep</code></td><td>3,877</td><td>8,812</td><td>6,932</td><td class="left">lock-wait backpressure delay</td></tr>
+                <tr><td class="left"><code>sched_yield</code></td><td class="metric-good">0</td><td>31</td><td>51</td><td class="left">TCP never contends for any lock</td></tr>
+            </tbody>
+        </table>
+        <div class="finding-box red">
+            <div class="finding-label">futex explosion — dominant overhead source</div>
+            TCP: <strong>0.13 futex/request</strong> &nbsp;|&nbsp; REST: <strong>4.8/request</strong> &nbsp;|&nbsp; gRPC: <strong>5.5/request</strong><br><br>
+            Every futex is a mutex lock acquisition or release — pure synchronization overhead, no application work. <code>sched_yield = 0</code> for TCP proves zero lock contention. A thread only yields when spinning on a lock it cannot acquire.
+        </div>
+    </div>
+</details>
+
+<details>
+    <summary>📉 Concurrency scaling — hardware counters across all levels</summary>
+    <div class="details-content">
+        <p style="color:var(--muted); font-size:0.85rem; margin-bottom:12px;">Context switches:</p>
+        <table>
+            <thead><tr><th>Concurrency</th><th>TCP</th><th>REST</th><th>gRPC</th><th>REST/TCP</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td class="metric-good">1,439</td><td>4,437</td><td>5,127</td><td>3.1×</td></tr>
+                <tr><td>10</td><td class="metric-good">2,676</td><td>14,897</td><td>17,649</td><td>5.6×</td></tr>
+                <tr><td>50</td><td class="metric-good">16,657</td><td>72,125</td><td>18,765</td><td>4.3×</td></tr>
+                <tr><td>100</td><td class="metric-good">38,281</td><td>149,329</td><td>31,966</td><td>3.9×</td></tr>
+                <tr><td>500</td><td class="metric-good">122,112</td><td class="metric-bad">914,456</td><td>165,840</td><td class="metric-bad">7.5×</td></tr>
+            </tbody>
+        </table>
+        <div class="finding-box red">
+            <div class="finding-label">REST super-linear growth</div>
+            REST: 3.1× TCP at c=1 → 7.5× at c=500. HTTP/1.1's one-goroutine-per-connection model means 500 goroutines all fighting for connection pool locks. OS scheduler becomes the bottleneck.<br><br>
+            gRPC stays close to TCP at high concurrency (165K vs 122K) — HTTP/2 multiplexing means fewer goroutines serve more streams.
+        </div>
+        <p style="margin: 16px 0 10px; color:var(--muted); font-size:0.85rem;">Cache misses — gRPC's hidden cost:</p>
+        <table>
+            <thead><tr><th>Concurrency</th><th>TCP (K)</th><th>REST (K)</th><th>gRPC (K)</th><th>gRPC/TCP</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td class="metric-good">113</td><td>236</td><td>273</td><td>2.4×</td></tr>
+                <tr><td>10</td><td class="metric-good">254</td><td>443</td><td>492</td><td>1.9×</td></tr>
+                <tr><td>50</td><td class="metric-good">588</td><td>1,593</td><td>3,938</td><td>6.7×</td></tr>
+                <tr><td>100</td><td class="metric-good">1,095</td><td>6,479</td><td>15,758</td><td>14.4×</td></tr>
+                <tr><td>500</td><td class="metric-good">12,088</td><td>174,887</td><td class="metric-bad">331,541</td><td class="metric-bad">27.4×</td></tr>
+            </tbody>
+        </table>
+        <p>At c=500, gRPC generates 27× more cache misses than TCP. HTTP/2 per-stream state for 500 streams far exceeds L1/L2 cache capacity — this thrashing partially offsets gRPC's multiplexing benefits.</p>
+    </div>
+</details>
+
+<div class="section-title" id="anomalies">[anomalies_and_root_causes]</div>
+
+<p style="font-size:0.87rem; color:var(--muted); margin-bottom:16px;">Three anomalies were investigated at kernel level. Each was traced to a confirmed root cause rather than accepted as unexplained variance.</p>
+
+<details>
+    <summary>🔬 Anomaly 1: Page fault step function at 32KB — Go allocator boundary</summary>
+    <div class="details-content">
+        <p><strong>Observed:</strong> Page fault count spiked discontinuously at 32KB across all gRPC configurations — a step function, not a gradual increase.</p>
+        <div class="compare-row">
+            <div class="compare-box">
+                <div class="cb-label">At 31KB — all three frame sizes</div>
+                gRPC-8KB:  ~4,117 page faults<br>
+                gRPC-16KB: ~4,106 page faults<br>
+                gRPC-32KB: ~3,394 page faults<br>
+                <br><span style="color:var(--success)">→ Low and stable across all variants</span>
+            </div>
+            <div class="compare-box">
+                <div class="cb-label">At 32KB — all three frame sizes</div>
+                gRPC-8KB:  ~16,828 page faults<br>
+                gRPC-16KB: ~14,043 page faults<br>
+                gRPC-32KB: ~16,081 page faults<br>
+                <br><span style="color:var(--danger)">→ 4× simultaneous jump in all variants</span>
+            </div>
+        </div>
+        <div class="finding-box">
+            <div class="finding-label">confirmed root cause — Go allocator</div>
+            Go runtime constant: <code>_MaxSmallSize = 32768</code> (runtime/malloc.go)<br><br>
+            Below → thread-local size-class pool → page already mapped → no fault.<br>
+            Above → large-object allocator → fresh heap page from OS → guaranteed fault per allocation.
+        </div>
+        <div class="finding-box green">
+            <div class="finding-label">alternative hypothesis ruled out</div>
+            HTTP/2 frame splitting (default 16KB) was initially suspected. Three gRPC builds were tested — 8KB, 16KB, and 32KB frame sizes. All three showed <strong>identical step functions at exactly 32KB</strong> across two independent runs. Frame size had zero effect — definitively ruling out HTTP/2 framing.
+        </div>
+    </div>
+</details>
+
+<details>
+    <summary>📊 Anomaly 2: Three-zone buffer behavior across message sizes</summary>
+    <div class="details-content">
+        <p><strong>Observed:</strong> REST/gRPC latency ordering is not monotonic. Page fault analysis across 512B–64KB revealed three distinct performance zones.</p>
+        <div class="zone-bar">
+            <div class="zone zone-1">Zone 1: &lt;2KB<br>REST faster</div>
+            <div class="zone zone-2">Zone 2: 2–31KB<br>gRPC faster</div>
+            <div class="zone zone-3">Zone 3: ≥32KB<br>REST faster again</div>
+        </div>
+        <table>
+            <thead><tr><th style="text-align:left">Zone</th><th>Size Range</th><th style="text-align:left">Root Cause</th></tr></thead>
+            <tbody>
+                <tr><td class="left" style="color:var(--success)">Zone 1</td><td>&lt;2KB</td><td class="left">gRPC HTTP/2 fixed setup overhead (stream tables, HPACK, flow control) generates more page faults than REST's simple handling</td></tr>
+                <tr><td class="left" style="color:var(--primary)">Zone 2</td><td>2–31KB</td><td class="left">REST's dynamic bufio buffer growth overtakes gRPC's stable pre-allocated frame buffers — REST PF grows, gRPC stays flat ~4K</td></tr>
+                <tr><td class="left" style="color:var(--danger)">Zone 3</td><td>≥32KB</td><td class="left">Go allocator large-object threshold — gRPC's higher per-stream state amplifies the page fault cost above REST's</td></tr>
+            </tbody>
+        </table>
+        <p>Zone 2→3 crossover pinpointed between 31KB and 32KB with 1KB resolution. Confirmed across two independent runs.</p>
+    </div>
+</details>
+
+<details>
+    <summary>⚠️ Anomaly 3: REST latency exceeds gRPC at 4KB</summary>
+    <div class="details-content">
+        <p>At 4KB, c=1: REST (55.4µs) &gt; gRPC (50.4µs) — reversing expected ordering. Reproduced in multiple runs. This is the Zone 1→2 crossover manifesting in latency.</p>
+        <table>
+            <thead><tr><th>Size</th><th>REST PF</th><th>gRPC PF</th><th>Ratio</th><th>REST faster?</th></tr></thead>
+            <tbody>
+                <tr><td>512B</td><td>3,187</td><td>3,817</td><td>0.83×</td><td style="color:var(--success)">Yes</td></tr>
+                <tr><td>1KB</td><td>3,444</td><td>3,590</td><td>0.96×</td><td style="color:var(--success)">Tied</td></tr>
+                <tr><td>2KB</td><td>4,524</td><td>3,864</td><td>1.17×</td><td style="color:var(--danger)">No</td></tr>
+                <tr><td>3KB</td><td>4,848</td><td>4,021</td><td>1.21×</td><td style="color:var(--danger)">No</td></tr>
+                <tr><td>4KB</td><td>6,550</td><td>4,392</td><td>1.49×</td><td style="color:var(--danger)">No — anomaly</td></tr>
+            </tbody>
+        </table>
+        <div class="finding-box">
+            <div class="finding-label">explanation</div>
+            Below ~1KB, gRPC's fixed HTTP/2 setup allocations generate more page faults than REST. Above 2KB, REST's dynamic bufio growth overtakes gRPC's stable pre-allocated buffers. At 4KB the divergence (1.49×) is large enough to reverse latency ordering. Page fault ordering and latency ordering track each other consistently across all tested sizes.
+        </div>
+    </div>
+</details>
+
+<div class="section-title" id="discussion">[discussion]</div>
+
+<details>
+    <summary>🧠 The abstraction cost — quantified</summary>
+    <div class="details-content">
+        <p>REST over HTTP/1.1 adds 6 user-space function call layers, 6× more memory accesses, 3× more context switches, and 36× more mutex lock operations compared to raw TCP for identical 64B payloads. gRPC adds even more complexity per-request (2.7× more CPU cycles) but its multiplexing and flow control prevent catastrophic degradation at scale.</p>
+        <div class="finding-box blue">
+            <div class="finding-label">key insight</div>
+            There is no universally best protocol. The ranking depends entirely on workload regime:<br><br>
+            Low concurrency, small messages → TCP (latency, CPU efficiency)<br>
+            Medium concurrency, predictable load → REST (simplicity, 2× overhead acceptable)<br>
+            High concurrency, tail latency SLAs → gRPC (only defensible choice)
+        </div>
+    </div>
+</details>
+
+<details>
+    <summary>⚖️ Limitations and future work</summary>
+    <div class="details-content">
+        <ul>
+            <li><strong>Client-side profiling only:</strong> All perf measurements were on the client process. Server-side profiling would reveal receive-path overhead independently.</li>
+            <li><strong>Go runtime overhead:</strong> GC and goroutine scheduler add overhead inseparable from protocol overhead. A C++ baseline would isolate language runtime costs.</li>
+            <li><strong>Symmetric echo design:</strong> Asymmetric designs (small ACK only, or small ping with large response) would isolate send-path vs receive-path overhead independently.</li>
+            <li><strong>Go allocator threshold:</strong> Modifying <code>_MaxSmallSize</code> to shift the 32KB boundary requires recompiling the Go runtime — the definitive confirmation of the allocator hypothesis.</li>
+            <li><strong>Single-node only:</strong> Network latency would dominate µs-level differences in a distributed setup. Relative ratios and tail latency patterns remain applicable.</li>
+        </ul>
+    </div>
+</details>
+
+<div class="section-title" id="when">[when_to_use]</div>
+
+<div class="protocol-grid">
+    <div class="protocol-card">
+        <div class="proto-name" style="color:var(--success)">Use TCP when:</div>
+        <ul>
+            <li>You control both endpoints</li>
+            <li>Payloads are small and uniform</li>
+            <li>Concurrency is bounded (&lt;50)</li>
+            <li>Message size stays under 32KB</li>
+            <li>Minimum median latency is critical</li>
+        </ul>
+        <div class="proto-verdict">HFT order entry, internal hot paths, game servers</div>
+    </div>
+    <div class="protocol-card">
+        <div class="proto-name" style="color:var(--muted)">Use REST when:</div>
+        <ul>
+            <li>Simplicity and debuggability matter</li>
+            <li>Concurrency is low (&lt;50)</li>
+            <li>Broad client compatibility needed</li>
+            <li>Human-readable debugging required</li>
+            <li>2× TCP overhead is acceptable</li>
+        </ul>
+        <div class="proto-verdict">Public APIs, low-traffic internal services</div>
+    </div>
+    <div class="protocol-card">
+        <div class="proto-name" style="color:var(--primary)">Use gRPC when:</div>
+        <ul>
+            <li>P99 tail latency SLAs matter</li>
+            <li>Concurrency is high (&gt;50)</li>
+            <li>Payloads vary in size</li>
+            <li>Streaming RPCs needed</li>
+            <li>Internal microservice mesh</li>
+        </ul>
+        <div class="proto-verdict">Latency-sensitive distributed systems, ML inference</div>
+    </div>
+</div>
+
+<div class="finding-box green">
+    <div class="finding-label">systems design rule</div>
+    Average latency is what your system does on a good day.<br>
+    P99 latency is what your system does to your users.<br>
+    → Optimize for tail, not mean. TCP fails this test catastrophically at scale.
+</div>
+
+<footer>
+    Built with Dharoori Srinivas Acharya &nbsp;·&nbsp; IIIT Bangalore, SSP 2026 &nbsp;·&nbsp; <a href="index.html">@avnlk</a>
+</footer>
+
+</body>
+</html>
