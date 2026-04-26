@@ -76,12 +76,13 @@
         .jump-nav span { color: var(--box-border); }
 
         /* ── JUMP NAV (DESKTOP SIDEBAR) ── */
-        @media (min-width: 1300px) {
+        /* ── JUMP NAV (LAPTOP SIDEBAR: 1080px to 1300px) ── */
+        @media (min-width: 1080px) {
             .jump-nav {
                 position: fixed;
                 top: 120px;
-                left: calc(50% - 630px);
-                width: 180px;
+                left: 20px; /* Pins it to the left edge to save space */
+                width: 160px; /* Slightly narrower for laptop screens */
                 flex-direction: column;
                 background: transparent;
                 backdrop-filter: none;
@@ -94,6 +95,7 @@
                 border-left: 2px solid var(--box-border);
                 border-radius: 0;
                 margin-bottom: 4px;
+                font-size: 0.75rem; /* Slightly smaller text for laptop */
             }
             .jump-nav a:hover {
                 background: transparent;
@@ -101,6 +103,15 @@
                 border-left-color: var(--primary);
                 padding-left: 18px;
             }
+        }
+
+        /* ── JUMP NAV (DESKTOP SIDEBAR: 1300px+) ── */
+        @media (min-width: 1300px) {
+            .jump-nav {
+                left: calc(50% - 630px); /* Centers it perfectly next to the 860px container */
+                width: 180px;
+            }
+            .jump-nav a { font-size: 0.78rem; }
         }
 
         .section-title {
