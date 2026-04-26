@@ -53,13 +53,19 @@
         .tag-blue { border-color: var(--primary); color: var(--primary); }
         .tag-green { border-color: var(--success); color: var(--success); }
 
-        /* ── JUMP NAV (DEFAULT/MOBILE) ── */
+        /* ── JUMP NAV (DEFAULT/MOBILE/LAPTOP) ── */
         .jump-nav {
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
             padding: 12px 16px;
-            background: var(--box-bg);
+            /* Using rgba for the background so the glass blur effect works */
+            background: rgba(22, 27, 34, 0.85); 
             border: 1px solid var(--box-border);
             border-radius: 6px;
             margin: 18px 0 28px;
@@ -78,6 +84,7 @@
                 width: 180px;
                 flex-direction: column;
                 background: transparent;
+                backdrop-filter: none;
                 border: none;
                 padding: 0;
             }
