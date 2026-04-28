@@ -307,7 +307,7 @@
 </div>
 
 <details>
-    <summary>🧭 [context] why does protocol choice matter?</summary>
+    <summary> [context] why does protocol choice matter?</summary>
     <div class="details-content">
         <p>In distributed systems, the protocol stack sits on the critical path of every request. The choice between TCP, REST, and gRPC is not merely an API preference — it is a latency and throughput contract with the operating system, the kernel scheduler, and the network stack.</p>
         <p><strong>The Problem:</strong> Most protocol comparisons report only end-to-end latency under a single load condition. They do not explain <em>why</em> protocols differ, nor do they show how overhead evolves with message size and concurrency. Without this, protocol selection is intuition-driven rather than evidence-based.</p>
@@ -339,7 +339,7 @@
 </div>
 
 <details>
-    <summary>🔧 [tools] profiling stack</summary>
+    <summary> [tools] profiling stack</summary>
     <div class="details-content">
         <table>
             <thead><tr><th style="text-align:left">Tool</th><th>Version</th><th style="text-align:left">Purpose</th></tr></thead>
@@ -410,7 +410,7 @@
 <p style="font-size:0.82rem; color:var(--muted); margin-bottom:20px;">Each zone has a distinct root cause — see anomalies section for full kernel-level investigation.</p>
 
 <details open>
-    <summary>📊 Baseline latency vs message size (concurrency = 1)</summary>
+    <summary> Baseline latency vs message size (concurrency = 1)</summary>
     <div class="details-content">
         <table>
             <thead><tr><th style="text-align:left">Message Size</th><th>TCP (µs)</th><th>REST (µs)</th><th>gRPC (µs)</th><th>REST/TCP</th><th>gRPC/TCP</th></tr></thead>
@@ -427,7 +427,7 @@
 </details>
 
 <details>
-    <summary>📈 Latency vs concurrency (64B messages)</summary>
+    <summary> Latency vs concurrency (64B messages)</summary>
     <div class="details-content">
         <table>
             <thead><tr><th>Concurrency</th><th>TCP (µs)</th><th>REST (µs)</th><th>gRPC (µs)</th><th>REST/TCP</th></tr></thead>
@@ -444,7 +444,7 @@
 </details>
 
 <details open>
-    <summary>🔥 Tail latency at max load (64KB, c=500) — key finding</summary>
+    <summary> Tail latency at max load (64KB, c=500) — key finding</summary>
     <div class="details-content">
         <table>
             <thead><tr><th style="text-align:left">Protocol</th><th>Median (µs)</th><th>P99 (µs)</th><th>P99/Median</th><th>Verdict</th></tr></thead>
@@ -467,7 +467,7 @@
 <div class="section-title" id="profiling">[kernel_profiling]</div>
 
 <details open>
-    <summary>⚡ Hardware performance counters — perf stat (64B, c=1, 10K requests)</summary>
+    <summary> Hardware performance counters — perf stat (64B, c=1, 10K requests)</summary>
     <div class="details-content">
         <table>
             <thead><tr><th style="text-align:left">Counter</th><th>TCP</th><th>REST</th><th>gRPC</th><th>REST/TCP</th></tr></thead>
@@ -494,7 +494,7 @@
 </details>
 
 <details>
-    <summary>🔥 Flame graph analysis — call stack depth per protocol</summary>
+    <summary> Flame graph analysis — call stack depth per protocol</summary>
     <div class="details-content">
         <p style="color:var(--muted); font-size:0.85rem; margin-bottom:14px;">Generated using perf record at 999Hz + stackcollapse-perf.pl + flamegraph.pl. Wider = more CPU time. File sizes alone tell the story: TCP 149KB, gRPC 332KB.</p>
         <div class="finding-box blue">
@@ -517,7 +517,7 @@
 </details>
 
 <details>
-    <summary>🖥️ Syscall analysis — perf trace (64B, c=1, 10K requests)</summary>
+    <summary> Syscall analysis — perf trace (64B, c=1, 10K requests)</summary>
     <div class="details-content">
         <table>
             <thead><tr><th style="text-align:left">Syscall</th><th>TCP</th><th>REST</th><th>gRPC</th><th style="text-align:left">Significance</th></tr></thead>
@@ -539,7 +539,7 @@
 </details>
 
 <details>
-    <summary>📉 Concurrency scaling — hardware counters across all levels</summary>
+    <summary> Concurrency scaling — hardware counters across all levels</summary>
     <div class="details-content">
         <p style="color:var(--muted); font-size:0.85rem; margin-bottom:12px;">Context switches:</p>
         <table>
@@ -610,7 +610,7 @@
 </details>
 
 <details>
-    <summary>📊 Anomaly 2: Three-zone buffer behavior across message sizes</summary>
+    <summary> Anomaly 2: Three-zone buffer behavior across message sizes</summary>
     <div class="details-content">
         <p><strong>Observed:</strong> REST/gRPC latency ordering is not monotonic. Page fault analysis across 512B–64KB revealed three distinct performance zones.</p>
         <div class="zone-bar">
@@ -631,7 +631,7 @@
 </details>
 
 <details>
-    <summary>⚠️ Anomaly 3: REST latency exceeds gRPC at 4KB</summary>
+    <summary> Anomaly 3: REST latency exceeds gRPC at 4KB</summary>
     <div class="details-content">
         <p>At 4KB, c=1: REST (55.4µs) &gt; gRPC (50.4µs) — reversing expected ordering. Reproduced in multiple runs. This is the Zone 1→2 crossover manifesting in latency.</p>
         <table>
@@ -654,7 +654,7 @@
 <div class="section-title" id="discussion">[discussion]</div>
 
 <details>
-    <summary>🧠 The abstraction cost — quantified</summary>
+    <summary> The abstraction cost — quantified</summary>
     <div class="details-content">
         <p>REST over HTTP/1.1 adds 6 user-space function call layers, 6× more memory accesses, 3× more context switches, and 36× more mutex lock operations compared to raw TCP for identical 64B payloads. gRPC adds even more complexity per-request (2.7× more CPU cycles) but its multiplexing and flow control prevent catastrophic degradation at scale.</p>
         <div class="finding-box blue">
@@ -668,7 +668,7 @@
 </details>
 
 <details>
-    <summary>⚖️ Limitations and future work</summary>
+    <summary> Limitations and future work</summary>
     <div class="details-content">
         <ul>
             <li><strong>Client-side profiling only:</strong> All perf measurements were on the client process. Server-side profiling would reveal receive-path overhead independently.</li>
